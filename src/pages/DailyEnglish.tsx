@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { RefreshCw, Volume2, BookOpen, Play, Pause } from 'lucide-react';
+import { RefreshCw, BookOpen, Play, Pause } from 'lucide-react';
 import { useApi } from '../hooks/useApi';
 import type { DailyWordData } from '../types';
 import LoadingCard from '../components/LoadingCard';
@@ -35,12 +35,6 @@ export default function DailyEnglish() {
       setPlayingType(null);
     });
     audio.onended = () => setPlayingType(null);
-  };
-
-  const speakWord = (word: string) => {
-    const utterance = new SpeechSynthesisUtterance(word);
-    utterance.lang = 'en-US';
-    window.speechSynthesis.speak(utterance);
   };
 
   return (
@@ -123,14 +117,6 @@ export default function DailyEnglish() {
                       )}
                     </div>
                   )}
-                  <button
-                    onClick={() => speakWord(data.word || '')}
-                    className="flex items-center gap-1 px-3 py-2 bg-ivory text-ink rounded-lg hover:bg-amber/20 transition-colors text-sm"
-                    title="系统语音朗读"
-                  >
-                    <Volume2 size={14} className="text-amber" />
-                    <span>朗读</span>
-                  </button>
                 </div>
               </div>
               <button
