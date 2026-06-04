@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { RefreshCw, Volume2, BookOpen } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { RefreshCw, Volume2, BookOpen, Play, Pause } from 'lucide-react';
 import { useApi } from '../hooks/useApi';
 import type { DailyWordData } from '../types';
 import LoadingCard from '../components/LoadingCard';
@@ -12,29 +12,35 @@ export default function DailyEnglish() {
     { immediate: true }
   );
 
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playingType, setPlayingType] = useState<'us' | 'uk' | null>(null);
+
   const handleRefresh = () => {
     setRefreshKey(prev => prev + 1);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      setPlayingType(null);
+    }
     refetch();
+  };
+
+  const playAudio = (url: string, type: 'us' | 'uk') => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    const audio = new Audio(url);
+    audioRef.current = audio;
+    setPlayingType(type);
+    audio.play().catch(() => {
+      setPlayingType(null);
+    });
+    audio.onended = () => setPlayingType(null);
   };
 
   const speakWord = (word: string) => {
     const utterance = new SpeechSynthesisUtterance(word);
     utterance.lang = 'en-US';
     window.speechSynthesis.speak(utterance);
-  };
-
-  const getMainMeaning = (wordData: DailyWordData) => {
-    if (wordData.translations && wordData.translations.length > 0) {
-      return wordData.translations.map(t => `${t.pos} ${t.tran_cn}`).join('; ');
-    }
-    return '暂无释义';
-  };
-
-  const getFirstExample = (wordData: DailyWordData) => {
-    if (wordData.sentences && wordData.sentences.length > 0) {
-      return wordData.sentences[0];
-    }
-    return null;
   };
 
   return (
@@ -69,26 +75,63 @@ export default function DailyEnglish() {
 
       {data && (
         <div className="space-y-6">
-          {/* Word Card */}
+          {/* Word Header Card */}
           <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
             <div className="flex items-start justify-between mb-6">
-              <div>
-                <h2 className="text-4xl font-bold text-ink font-serif mb-2">
+              <div className="flex-1">
+                <h2 className="text-5xl font-bold text-ink font-serif mb-4">
                   {data.word || 'Word'}
                 </h2>
-                {(data.usphone || data.ukphone) && (
-                  <div className="flex items-center gap-2 text-muted">
-                    {data.usphone && <span className="text-lg">美 /{data.usphone}/</span>}
-                    {data.ukphone && <span className="text-lg">英 /{data.ukphone}/</span>}
-                    <button
-                      onClick={() => speakWord(data.word || '')}
-                      className="p-1.5 rounded-full hover:bg-amber/20 transition-colors"
-                      title="播放发音"
-                    >
-                      <Volume2 size={16} className="text-amber" />
-                    </button>
-                  </div>
-                )}
+
+                {/* Phonetics */}
+                <div className="flex flex-wrap items-center gap-4">
+                  {data.usphone && (
+                    <div className="flex items-center gap-2 bg-ivory px-4 py-2 rounded-lg">
+                      <span className="text-xs font-bold text-amber">US</span>
+                      <span className="text-charcoal">/{data.usphone}/</span>
+                      {data.usspeech && (
+                        <button
+                          onClick={() => playAudio(data.usspeech!, 'us')}
+                          className="p-1 rounded-full hover:bg-amber/20 transition-colors"
+                          title="播放美式发音"
+                        >
+                          {playingType === 'us' ? (
+                            <Pause size={14} className="text-amber" />
+                          ) : (
+                            <Play size={14} className="text-amber" />
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {data.ukphone && (
+                    <div className="flex items-center gap-2 bg-ivory px-4 py-2 rounded-lg">
+                      <span className="text-xs font-bold text-amber">UK</span>
+                      <span className="text-charcoal">/{data.ukphone}/</span>
+                      {data.ukspeech && (
+                        <button
+                          onClick={() => playAudio(data.ukspeech!, 'uk')}
+                          className="p-1 rounded-full hover:bg-amber/20 transition-colors"
+                          title="播放英式发音"
+                        >
+                          {playingType === 'uk' ? (
+                            <Pause size={14} className="text-amber" />
+                          ) : (
+                            <Play size={14} className="text-amber" />
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  <button
+                    onClick={() => speakWord(data.word || '')}
+                    className="flex items-center gap-1 px-3 py-2 bg-ivory text-ink rounded-lg hover:bg-amber/20 transition-colors text-sm"
+                    title="系统语音朗读"
+                  >
+                    <Volume2 size={14} className="text-amber" />
+                    <span>朗读</span>
+                  </button>
+                </div>
               </div>
               <button
                 onClick={handleRefresh}
@@ -98,44 +141,69 @@ export default function DailyEnglish() {
                 <span>换一词</span>
               </button>
             </div>
-
-            {/* Meaning */}
-            <div className="mb-6">
-              <h3 className="text-sm font-medium text-muted mb-2 uppercase tracking-wider">释义</h3>
-              <p className="text-lg text-charcoal leading-relaxed">{getMainMeaning(data)}</p>
-            </div>
-
-            {/* Example */}
-            {getFirstExample(data) && (
-              <div className="bg-ivory rounded-xl p-5 border border-gray-100">
-                <h3 className="text-sm font-medium text-muted mb-2 uppercase tracking-wider">例句</h3>
-                <p className="text-charcoal italic leading-relaxed mb-2">
-                  {getFirstExample(data)?.s_content}
-                </p>
-                <p className="text-muted text-sm">
-                  {getFirstExample(data)?.s_cn}
-                </p>
-              </div>
-            )}
           </div>
 
-          {/* Related Words */}
-          {data.relWords && data.relWords.length > 0 && (
+          {/* Translations */}
+          {data.translations && data.translations.length > 0 && (
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h3 className="text-lg font-medium text-ink mb-4 font-serif">相关词汇</h3>
+              <h3 className="text-lg font-medium text-ink mb-4 font-serif flex items-center gap-2">
+                <span className="w-1 h-5 bg-amber rounded-full"></span>
+                释义
+              </h3>
               <div className="space-y-3">
-                {data.relWords.map((rel, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 bg-ivory rounded-xl">
-                    <span className="px-2 py-0.5 bg-amber text-ink text-xs font-bold rounded-md flex-shrink-0">
-                      {rel.Pos}
+                {data.translations.map((t, index) => (
+                  <div key={index} className="flex items-start gap-3 p-4 bg-ivory rounded-xl">
+                    <span className="px-2.5 py-1 bg-amber text-ink text-xs font-bold rounded-md flex-shrink-0">
+                      {t.pos}
                     </span>
-                    <div className="space-y-1">
-                      {rel.Hwds.map((hw, i) => (
-                        <div key={i} className="text-sm">
-                          <span className="font-medium text-ink">{hw.hwd}</span>
-                          <span className="text-muted"> {hw.tran}</span>
-                        </div>
-                      ))}
+                    <p className="text-charcoal text-lg leading-relaxed">{t.tran_cn}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Phrases */}
+          {data.phrases && data.phrases.length > 0 && (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <h3 className="text-lg font-medium text-ink mb-4 font-serif flex items-center gap-2">
+                <span className="w-1 h-5 bg-amber rounded-full"></span>
+                常用短语
+              </h3>
+              <div className="space-y-3">
+                {data.phrases.map((phrase, index) => (
+                  <div key={index} className="flex items-start gap-3 p-4 bg-ivory rounded-xl">
+                    <span className="w-7 h-7 rounded-full bg-amber/20 flex items-center justify-center flex-shrink-0 text-xs font-bold text-amber">
+                      {index + 1}
+                    </span>
+                    <div>
+                      <p className="font-medium text-ink text-base">{phrase.p_content}</p>
+                      <p className="text-muted text-sm mt-1">{phrase.p_cn}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Sentences */}
+          {data.sentences && data.sentences.length > 0 && (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <h3 className="text-lg font-medium text-ink mb-4 font-serif flex items-center gap-2">
+                <span className="w-1 h-5 bg-amber rounded-full"></span>
+                例句
+              </h3>
+              <div className="space-y-4">
+                {data.sentences.map((sent, index) => (
+                  <div key={index} className="border-b border-gray-100 last:border-0 pb-4 last:pb-0">
+                    <div className="flex items-start gap-3">
+                      <span className="w-7 h-7 rounded-full bg-ink/10 flex items-center justify-center flex-shrink-0 text-xs font-bold text-ink mt-0.5">
+                        {index + 1}
+                      </span>
+                      <div className="flex-1">
+                        <p className="text-charcoal italic leading-relaxed text-base">{sent.s_content}</p>
+                        <p className="text-muted text-sm mt-2">{sent.s_cn}</p>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -146,17 +214,22 @@ export default function DailyEnglish() {
           {/* Synonyms */}
           {data.synonyms && data.synonyms.length > 0 && (
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h3 className="text-lg font-medium text-ink mb-4 font-serif">同义词</h3>
+              <h3 className="text-lg font-medium text-ink mb-4 font-serif flex items-center gap-2">
+                <span className="w-1 h-5 bg-amber rounded-full"></span>
+                同义词
+              </h3>
               <div className="space-y-3">
                 {data.synonyms.map((syn, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 bg-ivory rounded-xl">
-                    <span className="px-2 py-0.5 bg-ink/10 text-ink text-xs font-bold rounded-md flex-shrink-0">
+                  <div key={index} className="flex items-start gap-3 p-4 bg-ivory rounded-xl">
+                    <span className="px-2.5 py-1 bg-ink/10 text-ink text-xs font-bold rounded-md flex-shrink-0">
                       {syn.pos}
                     </span>
-                    <div>
-                      <div className="flex flex-wrap gap-2 mb-1">
+                    <div className="flex-1">
+                      <div className="flex flex-wrap gap-2 mb-2">
                         {syn.Hwds.map((hw, i) => (
-                          <span key={i} className="text-sm font-medium text-ink">{hw.word}</span>
+                          <span key={i} className="px-3 py-1 bg-white text-ink text-sm font-medium rounded-lg border border-gray-100">
+                            {hw.word}
+                          </span>
                         ))}
                       </div>
                       <p className="text-sm text-muted">{syn.tran}</p>
@@ -167,20 +240,43 @@ export default function DailyEnglish() {
             </div>
           )}
 
-          {/* More Examples */}
-          {data.sentences && data.sentences.length > 1 && (
+          {/* Related Words */}
+          {data.relWords && data.relWords.length > 0 && (
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h3 className="text-lg font-medium text-ink mb-4 font-serif">更多例句</h3>
-              <ul className="space-y-4">
-                {data.sentences.slice(1).map((sent, index) => (
-                  <li key={index} className="border-b border-gray-100 last:border-0 pb-4 last:pb-0">
-                    <p className="text-charcoal italic mb-1">{sent.s_content}</p>
-                    <p className="text-sm text-muted">{sent.s_cn}</p>
-                  </li>
+              <h3 className="text-lg font-medium text-ink mb-4 font-serif flex items-center gap-2">
+                <span className="w-1 h-5 bg-amber rounded-full"></span>
+                相关词汇
+              </h3>
+              <div className="space-y-3">
+                {data.relWords.map((rel, index) => (
+                  <div key={index} className="flex items-start gap-3 p-4 bg-ivory rounded-xl">
+                    <span className="px-2.5 py-1 bg-amber text-ink text-xs font-bold rounded-md flex-shrink-0">
+                      {rel.Pos}
+                    </span>
+                    <div className="space-y-2">
+                      {rel.Hwds.map((hw, i) => (
+                        <div key={i} className="text-sm">
+                          <span className="font-medium text-ink text-base">{hw.hwd}</span>
+                          <span className="text-muted"> — {hw.tran}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
+
+          {/* Raw Data Debug Card */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <h3 className="text-lg font-medium text-ink mb-4 font-serif flex items-center gap-2">
+              <span className="w-1 h-5 bg-amber rounded-full"></span>
+              API 原始数据
+            </h3>
+            <pre className="bg-ivory rounded-xl p-4 text-xs text-charcoal overflow-x-auto scrollbar-thin leading-relaxed">
+              {JSON.stringify(data, null, 2)}
+            </pre>
+          </div>
         </div>
       )}
 

@@ -21,6 +21,8 @@ export interface DailyWordData {
   word: string;
   usphone?: string;
   ukphone?: string;
+  usspeech?: string;
+  ukspeech?: string;
   translations?: Array<{
     pos: string;
     tran_cn: string;
@@ -28,6 +30,10 @@ export interface DailyWordData {
   sentences?: Array<{
     s_content: string;
     s_cn: string;
+  }>;
+  phrases?: Array<{
+    p_content: string;
+    p_cn: string;
   }>;
   relWords?: Array<{
     Pos: string;
