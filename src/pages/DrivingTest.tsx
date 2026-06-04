@@ -44,6 +44,10 @@ export default function DrivingTest() {
     return ['A', 'B', 'C', 'D'].indexOf(label);
   };
 
+  const isQuestionMode = (d: DrivingQuestionData): boolean => {
+    return getOptions(d).length > 0 && !!d.answer;
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
@@ -74,7 +78,7 @@ export default function DrivingTest() {
         </div>
       )}
 
-      {data && (
+      {data && isQuestionMode(data) && (
         <div className="space-y-6">
           {/* Question Card */}
           <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
@@ -117,70 +121,58 @@ export default function DrivingTest() {
             </h2>
 
             {/* Options */}
-            {getOptions(data).length > 0 ? (
-              <div className="space-y-3">
-                {getOptions(data).map((option, index) => {
-                  const isSelected = selectedOption === index;
-                  const answerIndex = getAnswerIndex(data.answer);
-                  const isCorrect = index === answerIndex;
-                  const showResult = showAnswer;
+            <div className="space-y-3">
+              {getOptions(data).map((option, index) => {
+                const isSelected = selectedOption === index;
+                const answerIndex = getAnswerIndex(data.answer);
+                const isCorrect = index === answerIndex;
+                const showResult = showAnswer;
 
-                  let buttonClass = 'w-full text-left px-5 py-4 rounded-xl border-2 transition-all duration-200 ';
+                let buttonClass = 'w-full text-left px-5 py-4 rounded-xl border-2 transition-all duration-200 ';
 
-                  if (showResult) {
-                    if (isCorrect) {
-                      buttonClass += 'border-green-500 bg-green-50 text-green-800';
-                    } else if (isSelected && !isCorrect) {
-                      buttonClass += 'border-red-400 bg-red-50 text-red-700';
-                    } else {
-                      buttonClass += 'border-gray-100 bg-white text-charcoal opacity-60';
-                    }
+                if (showResult) {
+                  if (isCorrect) {
+                    buttonClass += 'border-green-500 bg-green-50 text-green-800';
+                  } else if (isSelected && !isCorrect) {
+                    buttonClass += 'border-red-400 bg-red-50 text-red-700';
                   } else {
-                    buttonClass += 'border-gray-100 bg-white text-charcoal hover:border-amber hover:bg-amber/5 cursor-pointer';
+                    buttonClass += 'border-gray-100 bg-white text-charcoal opacity-60';
                   }
+                } else {
+                  buttonClass += 'border-gray-100 bg-white text-charcoal hover:border-amber hover:bg-amber/5 cursor-pointer';
+                }
 
-                  return (
-                    <button
-                      key={index}
-                      onClick={() => handleSelect(index)}
-                      disabled={showAnswer}
-                      className={buttonClass}
-                    >
-                      <div className="flex items-center gap-4">
-                        <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0 ${
-                          showResult
-                            ? isCorrect
-                              ? 'bg-green-500 text-white'
-                              : isSelected
-                              ? 'bg-red-400 text-white'
-                              : 'bg-gray-100 text-gray-400'
-                            : 'bg-ivory text-ink'
-                        }`}>
-                          {showResult && isCorrect ? (
-                            <CheckCircle2 size={16} />
-                          ) : showResult && isSelected ? (
-                            <XCircle size={16} />
-                          ) : (
-                            getOptionLabel(index)
-                          )}
-                        </span>
-                        <span className="flex-1">{option.replace(/^[A-D]、\s*/, '')}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-6 bg-amber/5 rounded-xl border border-amber/20">
-                <p className="text-sm text-amber">本题选项加载异常，请尝试刷新</p>
-                <button
-                  onClick={refetch}
-                  className="mt-2 text-xs text-ink hover:text-amber transition-colors underline"
-                >
-                  重新加载
-                </button>
-              </div>
-            )}
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleSelect(index)}
+                    disabled={showAnswer}
+                    className={buttonClass}
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0 ${
+                        showResult
+                          ? isCorrect
+                            ? 'bg-green-500 text-white'
+                            : isSelected
+                            ? 'bg-red-400 text-white'
+                            : 'bg-gray-100 text-gray-400'
+                          : 'bg-ivory text-ink'
+                      }`}>
+                        {showResult && isCorrect ? (
+                          <CheckCircle2 size={16} />
+                        ) : showResult && isSelected ? (
+                          <XCircle size={16} />
+                        ) : (
+                          getOptionLabel(index)
+                        )}
+                      </span>
+                      <span className="flex-1">{option.replace(/^[A-D]、\s*/, '')}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
 
             {/* Result */}
             {showAnswer && (
@@ -218,6 +210,61 @@ export default function DrivingTest() {
               <p className="text-charcoal leading-relaxed">{data.explain}</p>
             </div>
           )}
+        </div>
+      )}
+
+      {data && !isQuestionMode(data) && (
+        <div className="space-y-6">
+          {/* Knowledge Card */}
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 bg-amber/10 text-amber text-xs font-medium rounded-full">
+                  知识点
+                </span>
+                {data.chapter && (
+                  <span className="px-3 py-1 bg-ink/10 text-ink text-xs font-medium rounded-full">
+                    {data.chapter}
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={handleNext}
+                className="flex items-center gap-2 px-4 py-2 bg-ivory text-ink rounded-lg hover:bg-amber/20 transition-colors text-sm"
+              >
+                <RefreshCw size={16} />
+                <span>下一题</span>
+              </button>
+            </div>
+
+            {/* Question Image */}
+            {data.pic && (
+              <div className="mb-6">
+                <img
+                  src={data.pic}
+                  alt="题目图片"
+                  className="max-w-full h-auto rounded-xl border border-gray-100"
+                  style={{ maxHeight: '300px' }}
+                />
+              </div>
+            )}
+
+            <div className="bg-ivory rounded-xl p-6 border border-gray-100">
+              <p className="text-lg text-charcoal leading-relaxed font-medium">
+                {data.question || data.explain}
+              </p>
+            </div>
+
+            {data.explain && data.question && (
+              <div className="mt-4 p-4 rounded-xl bg-white border border-gray-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <Lightbulb size={16} className="text-amber" />
+                  <span className="text-sm font-medium text-ink">补充说明</span>
+                </div>
+                <p className="text-sm text-charcoal leading-relaxed">{data.explain}</p>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

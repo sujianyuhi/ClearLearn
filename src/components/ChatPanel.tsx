@@ -490,6 +490,41 @@ function WelcomeView({
       desc: '解读历史事件的背景和影响',
       gradient: 'from-purple-500/10 to-purple-500/5',
     },
+    'sanguo-heroes': {
+      title: '三国人物志',
+      desc: '深度解析三国人物的生平与历史地位',
+      gradient: 'from-red-500/10 to-red-500/5',
+    },
+    'translator': {
+      title: '聚合翻译',
+      desc: '提供翻译质量评估与语言学习建议',
+      gradient: 'from-sky-500/10 to-sky-500/5',
+    },
+    'proverbs': {
+      title: '随机谚语',
+      desc: '深入解读谚语背后的文化内涵与人生智慧',
+      gradient: 'from-amber/20 to-amber/5',
+    },
+    'math-quiz': {
+      title: '小学数学挑战',
+      desc: '提供详细的解题思路与知识点讲解',
+      gradient: 'from-emerald/15 to-emerald/5',
+    },
+    'poetry': {
+      title: '古诗文大全',
+      desc: '深度赏析古典诗词的意象、情感与文学价值',
+      gradient: 'from-amber/20 to-amber/5',
+    },
+    'chemical-element': {
+      title: '元素周期表',
+      desc: '深入解析化学元素的性质、应用与科学故事',
+      gradient: 'from-ink/10 to-ink/5',
+    },
+    'idiom': {
+      title: '成语字典',
+      desc: '深入解读成语典故、字义演变与文化内涵',
+      gradient: 'from-amber/20 to-amber/5',
+    },
   };
 
   const meta = sectionMeta[section] || {

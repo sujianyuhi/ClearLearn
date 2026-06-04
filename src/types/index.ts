@@ -142,4 +142,144 @@ export interface DrivingQuestionData {
 // History API response - array of strings
 export type HistoryEventData = string;
 
-export type ApiData = DailyWordData | WordDetailData | DrivingQuestionData | HistoryEventData[] | null;
+// Sanguo (Three Kingdoms) API response
+export interface SanguoPersonData {
+  name: string;
+  guo: string;
+  sex: string;
+  real: string;
+  zi: string;
+  py: string;
+  age: string;
+  content: string;
+}
+
+// Translator API response
+export interface TranslatorData {
+  sourceText: string;
+  translatedText: string;
+  targetLang: number;
+}
+
+// Proverb API response
+export interface ProverbData {
+  saying: string;
+  content: string;
+}
+
+// Idiom API response
+export interface IdiomData {
+  code: number;
+  msg?: string;
+  words: string;
+  bushou: string;
+  shouzi: string;
+  pinyin: string;
+  jieshi: string;
+  chuchu: string;
+  tongyi: string;
+  fanyi: string;
+  liju: string;
+  yinzheng: string;
+  yufa: string;
+  en: string;
+}
+
+// Math Quiz API response
+export interface MathQuestionData {
+  code: number;
+  timu: string;
+  daan: string;
+  jiexi: string;
+}
+
+// Chemical Equation Balancer API response
+export interface EquationData {
+  code: number;
+  fcs: string;
+  fcsall: string;
+  left: string;
+  right: string;
+  reactant: string[];
+  product: string[];
+  reactants: Array<{ formula: string; coefficient: number }>;
+  products: Array<{ formula: string; coefficient: number }>;
+}
+
+// Chemical Element API response
+export interface ElementData {
+  id: string;
+  zwmc: string;
+  ysfh: string;
+  ywmc: string;
+  yzzl: string;
+  yzbj: string;
+  dzgx: string;
+  gjbj: string;
+  yztj: string;
+  lzbj: string;
+  yht: string;
+  fx: string;
+  ly: string;
+  yt: string;
+  zt: string;
+  fd: string;
+  br: string;
+  rhr: string;
+  drxs: string;
+  sd: string;
+  rd: string;
+  md: string;
+  zfr: string;
+  ddl: string;
+  zrd: string;
+  ty: string;
+  diq: string;
+  tpybm: string;
+  dxysc: string;
+  zlsj: string;
+  hsz: string;
+  dxybm: string;
+  daq: string;
+  tpysc: string;
+  qgz: string;
+  xie: string;
+  gu: string;
+  gan: string;
+  jr: string;
+  rsrl: string;
+  rtzl: string;
+  code: number;
+  dzmx: string;
+}
+
+// Poetry API response
+export interface PoetryItem {
+  name: string;
+  content: string;
+  author: string;
+  dynasty: string;
+  tag: string | null;
+  ywjzsy: string | null;
+  ywjzse: string | null;
+  czbj: string | null;
+  jsy: string | null;
+  jse: string | null;
+  sxy: string | null;
+  sxe: string | null;
+  jj: string | null;
+  wyzs: string | null;
+  yj: string | null;
+  xzsf: string | null;
+  dj: string | null;
+  pj: string | null;
+  jx: string | null;
+}
+
+export interface PoetryData {
+  code: number;
+  page: number;
+  data: PoetryItem[];
+}
+
+export type ApiData = DailyWordData | WordDetailData | DrivingQuestionData | HistoryEventData[] | SanguoPersonData | TranslatorData | ProverbData | IdiomData | MathQuestionData | EquationData | ElementData | PoetryData | PoetryItem | null;
