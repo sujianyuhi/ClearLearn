@@ -267,16 +267,6 @@ export default function DailyEnglish() {
             </div>
           )}
 
-          {/* Raw Data Debug Card */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-medium text-ink mb-4 font-serif flex items-center gap-2">
-              <span className="w-1 h-5 bg-amber rounded-full"></span>
-              API 原始数据
-            </h3>
-            <pre className="bg-ivory rounded-xl p-4 text-xs text-charcoal overflow-x-auto scrollbar-thin leading-relaxed">
-              {JSON.stringify(data, null, 2)}
-            </pre>
-          </div>
         </div>
       )}
 
