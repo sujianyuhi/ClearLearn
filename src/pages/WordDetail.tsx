@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Search, Volume2, BookMarked } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Search, BookMarked, Play, Pause } from 'lucide-react';
 import { useApi } from '../hooks/useApi';
 import type { WordDetailData } from '../types';
 import LoadingCard from '../components/LoadingCard';
@@ -14,6 +14,9 @@ export default function WordDetail() {
     { immediate: true }
   );
 
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playingType, setPlayingType] = useState<'us' | 'uk' | null>(null);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchWord.trim()) {
@@ -21,10 +24,17 @@ export default function WordDetail() {
     }
   };
 
-  const speakWord = (word: string) => {
-    const utterance = new SpeechSynthesisUtterance(word);
-    utterance.lang = 'en-US';
-    window.speechSynthesis.speak(utterance);
+  const playAudio = (url: string, type: 'us' | 'uk') => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    const audio = new Audio(url);
+    audioRef.current = audio;
+    setPlayingType(type);
+    audio.play().catch(() => {
+      setPlayingType(null);
+    });
+    audio.onended = () => setPlayingType(null);
   };
 
   const sampleWords = ['serendipity', 'ephemeral', 'resilience', 'eloquent', 'meticulous'];
@@ -107,35 +117,65 @@ export default function WordDetail() {
         <div className="space-y-6">
           {/* Word Header */}
           <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-            <div className="flex items-center gap-4 mb-6">
-              <h2 className="text-4xl font-bold text-ink font-serif">
-                {data.word || queryWord}
-              </h2>
-              {(data.usphone || data.ukphone) && (
-                <div className="flex items-center gap-2 text-muted">
-                  {data.usphone && <span className="text-lg">美 /{data.usphone}/</span>}
-                  {data.ukphone && <span className="text-lg">英 /{data.ukphone}/</span>}
-                  <button
-                    onClick={() => speakWord(data.word || queryWord || '')}
-                    className="p-1.5 rounded-full hover:bg-amber/20 transition-colors"
-                    title="播放发音"
-                  >
-                    <Volume2 size={16} className="text-amber" />
-                  </button>
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex-1">
+                <h2 className="text-5xl font-bold text-ink font-serif mb-4">
+                  {data.word || queryWord}
+                </h2>
+
+                {/* Phonetics */}
+                <div className="flex flex-wrap items-center gap-4">
+                  {data.usphone && (
+                    <div className="flex items-center gap-2 bg-ivory px-4 py-2 rounded-lg">
+                      <span className="text-xs font-bold text-amber">US</span>
+                      <span className="text-charcoal">/{data.usphone}/</span>
+                      {data.usspeech && (
+                        <button
+                          onClick={() => playAudio(data.usspeech!, 'us')}
+                          className="p-1 rounded-full hover:bg-amber/20 transition-colors"
+                          title="播放美式发音"
+                        >
+                          {playingType === 'us' ? (
+                            <Pause size={14} className="text-amber" />
+                          ) : (
+                            <Play size={14} className="text-amber" />
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {data.ukphone && (
+                    <div className="flex items-center gap-2 bg-ivory px-4 py-2 rounded-lg">
+                      <span className="text-xs font-bold text-amber">UK</span>
+                      <span className="text-charcoal">/{data.ukphone}/</span>
+                      {data.ukspeech && (
+                        <button
+                          onClick={() => playAudio(data.ukspeech!, 'uk')}
+                          className="p-1 rounded-full hover:bg-amber/20 transition-colors"
+                          title="播放英式发音"
+                        >
+                          {playingType === 'uk' ? (
+                            <Pause size={14} className="text-amber" />
+                          ) : (
+                            <Play size={14} className="text-amber" />
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Meanings */}
             {data.translations && data.translations.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-muted uppercase tracking-wider">详细释义</h3>
                 {data.translations.map((t, index) => (
                   <div key={index} className="flex items-start gap-3 p-4 bg-ivory rounded-xl">
-                    <span className="px-2 py-0.5 bg-amber text-ink text-xs font-bold rounded-md flex-shrink-0">
+                    <span className="px-2.5 py-1 bg-amber text-ink text-xs font-bold rounded-md flex-shrink-0">
                       {t.pos}
                     </span>
-                    <p className="text-charcoal leading-relaxed">{t.tran_cn}</p>
+                    <p className="text-charcoal text-lg leading-relaxed">{t.tran_cn}</p>
                   </div>
                 ))}
               </div>
@@ -145,16 +185,19 @@ export default function WordDetail() {
           {/* Phrases */}
           {data.phrases && data.phrases.length > 0 && (
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h3 className="text-lg font-medium text-ink mb-4 font-serif">常用短语</h3>
+              <h3 className="text-lg font-medium text-ink mb-4 font-serif flex items-center gap-2">
+                <span className="w-1 h-5 bg-amber rounded-full"></span>
+                常用短语
+              </h3>
               <div className="space-y-3">
                 {data.phrases.map((phrase, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 bg-ivory rounded-xl">
-                    <span className="w-6 h-6 rounded-full bg-amber/20 flex items-center justify-center flex-shrink-0 text-xs font-bold text-amber">
+                  <div key={index} className="flex items-start gap-3 p-4 bg-ivory rounded-xl">
+                    <span className="w-7 h-7 rounded-full bg-amber/20 flex items-center justify-center flex-shrink-0 text-xs font-bold text-amber">
                       {index + 1}
                     </span>
                     <div>
-                      <p className="font-medium text-ink">{phrase.p_content}</p>
-                      <p className="text-sm text-muted">{phrase.p_cn}</p>
+                      <p className="font-medium text-ink text-base">{phrase.p_content}</p>
+                      <p className="text-muted text-sm mt-1">{phrase.p_cn}</p>
                     </div>
                   </div>
                 ))}
@@ -165,32 +208,47 @@ export default function WordDetail() {
           {/* Examples */}
           {data.sentences && data.sentences.length > 0 && (
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h3 className="text-lg font-medium text-ink mb-4 font-serif">例句</h3>
-              <ul className="space-y-4">
+              <h3 className="text-lg font-medium text-ink mb-4 font-serif flex items-center gap-2">
+                <span className="w-1 h-5 bg-amber rounded-full"></span>
+                例句
+              </h3>
+              <div className="space-y-4">
                 {data.sentences.map((sent, index) => (
-                  <li key={index} className="border-b border-gray-100 last:border-0 pb-4 last:pb-0">
-                    <p className="text-charcoal italic mb-1">{sent.s_content}</p>
-                    <p className="text-sm text-muted">{sent.s_cn}</p>
-                  </li>
+                  <div key={index} className="border-b border-gray-100 last:border-0 pb-4 last:pb-0">
+                    <div className="flex items-start gap-3">
+                      <span className="w-7 h-7 rounded-full bg-ink/10 flex items-center justify-center flex-shrink-0 text-xs font-bold text-ink mt-0.5">
+                        {index + 1}
+                      </span>
+                      <div className="flex-1">
+                        <p className="text-charcoal italic leading-relaxed text-base">{sent.s_content}</p>
+                        <p className="text-muted text-sm mt-2">{sent.s_cn}</p>
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
 
           {/* Synonyms */}
           {data.synonyms && data.synonyms.length > 0 && (
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h3 className="text-lg font-medium text-ink mb-4 font-serif">同义词</h3>
+              <h3 className="text-lg font-medium text-ink mb-4 font-serif flex items-center gap-2">
+                <span className="w-1 h-5 bg-amber rounded-full"></span>
+                同义词
+              </h3>
               <div className="space-y-3">
                 {data.synonyms.map((syn, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 bg-ivory rounded-xl">
-                    <span className="px-2 py-0.5 bg-ink/10 text-ink text-xs font-bold rounded-md flex-shrink-0">
+                  <div key={index} className="flex items-start gap-3 p-4 bg-ivory rounded-xl">
+                    <span className="px-2.5 py-1 bg-ink/10 text-ink text-xs font-bold rounded-md flex-shrink-0">
                       {syn.pos}
                     </span>
-                    <div>
-                      <div className="flex flex-wrap gap-2 mb-1">
+                    <div className="flex-1">
+                      <div className="flex flex-wrap gap-2 mb-2">
                         {syn.Hwds.map((hw, i) => (
-                          <span key={i} className="text-sm font-medium text-ink">{hw.word}</span>
+                          <span key={i} className="px-3 py-1 bg-white text-ink text-sm font-medium rounded-lg border border-gray-100">
+                            {hw.word}
+                          </span>
                         ))}
                       </div>
                       <p className="text-sm text-muted">{syn.tran}</p>
@@ -204,18 +262,21 @@ export default function WordDetail() {
           {/* Related Words */}
           {data.relWords && data.relWords.length > 0 && (
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h3 className="text-lg font-medium text-ink mb-4 font-serif">相关词汇</h3>
+              <h3 className="text-lg font-medium text-ink mb-4 font-serif flex items-center gap-2">
+                <span className="w-1 h-5 bg-amber rounded-full"></span>
+                相关词汇
+              </h3>
               <div className="space-y-3">
                 {data.relWords.map((rel, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 bg-ivory rounded-xl">
-                    <span className="px-2 py-0.5 bg-amber text-ink text-xs font-bold rounded-md flex-shrink-0">
+                  <div key={index} className="flex items-start gap-3 p-4 bg-ivory rounded-xl">
+                    <span className="px-2.5 py-1 bg-amber text-ink text-xs font-bold rounded-md flex-shrink-0">
                       {rel.Pos}
                     </span>
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {rel.Hwds.map((hw, i) => (
                         <div key={i} className="text-sm">
-                          <span className="font-medium text-ink">{hw.hwd}</span>
-                          <span className="text-muted"> {hw.tran}</span>
+                          <span className="font-medium text-ink text-base">{hw.hwd}</span>
+                          <span className="text-muted"> — {hw.tran}</span>
                         </div>
                       ))}
                     </div>

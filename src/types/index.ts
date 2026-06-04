@@ -56,6 +56,8 @@ export interface WordDetailData {
   word: string;
   usphone?: string;
   ukphone?: string;
+  usspeech?: string;
+  ukspeech?: string;
   translations?: Array<{
     pos: string;
     tran_cn: string;
