@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface UseApiOptions {
   immediate?: boolean;
@@ -12,12 +12,15 @@ export function useApi<T>(
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fetchCountRef = useRef(0);
 
   const fetchData = useCallback(async () => {
     if (!url) return;
 
+    const currentCount = ++fetchCountRef.current;
     setLoading(true);
     setError(null);
+    setData(null);
 
     try {
       const response = await fetch(url, {
@@ -26,22 +29,29 @@ export function useApi<T>(
         },
       });
 
+      if (currentCount !== fetchCountRef.current) return;
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const result = await response.json();
-      
+
+      if (currentCount !== fetchCountRef.current) return;
+
       if (result.code !== 200 && result.code !== '200') {
         throw new Error(result.msg || 'API返回错误');
       }
 
       setData(result.data as T);
     } catch (err) {
+      if (currentCount !== fetchCountRef.current) return;
       setError(err instanceof Error ? err.message : '未知错误');
       setData(null);
     } finally {
-      setLoading(false);
+      if (currentCount === fetchCountRef.current) {
+        setLoading(false);
+      }
     }
   }, [url]);
 
@@ -51,7 +61,7 @@ export function useApi<T>(
 
   useEffect(() => {
     if (immediate && url) {
-      fetchData();
+      queueMicrotask(fetchData);
     }
   }, [url, immediate, fetchData]);
 

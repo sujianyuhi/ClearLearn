@@ -4,6 +4,8 @@ export interface ChatMessage {
   content: string;
   timestamp: number;
   section: string;
+  status?: 'sending' | 'sent' | 'error';
+  errorMessage?: string;
 }
 
 export interface ChatHistory {
@@ -15,6 +17,43 @@ export interface SectionContext {
   title: string;
   description: string;
 }
+
+export interface StreamingState {
+  content: string;
+  isLoading: boolean;
+  error: string | null;
+  abortController: AbortController | null;
+}
+
+export interface SectionConfig {
+  section: string;
+  title: string;
+  icon: string;
+  description: string;
+  quickQuestions: string[];
+  systemPromptTemplate: (data: unknown) => string;
+  contentParser: (data: unknown) => ParsedContent;
+}
+
+export interface ParsedContent {
+  title: string;
+  summary: string;
+  keyPoints: string[];
+  details: Record<string, unknown>;
+  rawData: unknown;
+}
+
+export type MarkdownToken =
+  | { type: 'text'; content: string }
+  | { type: 'bold'; content: string }
+  | { type: 'italic'; content: string }
+  | { type: 'code'; content: string }
+  | { type: 'codeBlock'; language: string; content: string }
+  | { type: 'heading'; level: number; content: string }
+  | { type: 'list'; items: string[]; ordered: boolean }
+  | { type: 'quote'; content: string }
+  | { type: 'link'; text: string; url: string }
+  | { type: 'lineBreak' };
 
 // Daily English API response
 export interface DailyWordData {

@@ -1,0 +1,7 @@
+services:
+  clearlearn:
+    build: .
+    container_name: clearlearn
+    ports:
+      - "6777:80"
+    restart: unless-stopped

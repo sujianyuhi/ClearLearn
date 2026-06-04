@@ -28,11 +28,11 @@
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: #D4A574 transparent;
+    scrollbar-color: rgba(212, 165, 116, 0.4) transparent;
   }
 
   .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
   }
 
   .scrollbar-thin::-webkit-scrollbar-track {
@@ -40,36 +40,155 @@
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: #D4A574;
-    border-radius: 3px;
+    background-color: rgba(212, 165, 116, 0.4);
+    border-radius: 10px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(212, 165, 116, 0.7);
   }
 }
 
-/* Animation for chat messages */
+/* ===== Custom Easing ===== */
+.ease-spring {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ===== Message Entrance Animation ===== */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(12px) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
 .animate-fade-in-up {
-  animation: fadeInUp 0.3s ease-out forwards;
+  animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Typing cursor for streaming text */
+/* ===== Typing Cursor ===== */
 .typing-cursor::after {
   content: '|';
-  animation: blink 1s step-end infinite;
-  color: #1E3A5F;
+  animation: blink 0.8s step-end infinite;
+  color: #D4A574;
+  font-weight: 300;
 }
 
 @keyframes blink {
-  50% {
-    opacity: 0;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ===== AI Avatar Float ===== */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ===== Soft Pulse ===== */
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.95); }
+}
+
+.animate-pulse-soft {
+  animation: pulseSoft 2s ease-in-out infinite;
+}
+
+/* ===== Mild Bounce for Loading Dots ===== */
+@keyframes bounceMild {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.animate-bounce-mild {
+  animation: bounceMild 0.6s ease-in-out infinite;
+}
+
+/* ===== Send Button Pulse ===== */
+@keyframes sendPulse {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(1px); }
+}
+
+.animate-send-pulse {
+  animation: sendPulse 1.5s ease-in-out infinite;
+}
+
+/* ===== Panel Slide-in Shadow ===== */
+.shadow-panel {
+  box-shadow: -10px 0 60px -15px rgba(30, 58, 95, 0.15);
+}
+
+/* ===== Markdown Content Styles ===== */
+.markdown-content {
+  word-break: break-word;
+}
+
+.markdown-content a {
+  color: #1E3A5F;
+  text-decoration: underline;
+  text-decoration-color: #D4A574;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+  transition: color 0.2s, text-decoration-color 0.2s;
+}
+
+.markdown-content a:hover {
+  color: #D4A574;
+  text-decoration-color: #1E3A5F;
+}
+
+.markdown-content code {
+  background-color: rgba(30, 58, 95, 0.06);
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.82em;
+  color: #1E3A5F;
+  border: 1px solid rgba(30, 58, 95, 0.08);
+}
+
+.markdown-content strong {
+  font-weight: 600;
+  color: #1E3A5F;
+}
+
+.markdown-content em {
+  font-style: italic;
+  color: #4A4A4A;
+}
+
+/* ===== Smooth Transitions ===== */
+button, a, input, textarea {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ===== Focus Styles ===== */
+textarea:focus, input:focus {
+  outline: none;
+}
+
+/* ===== Custom Selection Color ===== */
+::selection {
+  background-color: rgba(212, 165, 116, 0.25);
+  color: #1E3A5F;
+}
+
+/* ===== Scrollbar for Code Blocks ===== */
+pre::-webkit-scrollbar {
+  height: 4px;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background-color: rgba(212, 165, 116, 0.3);
+  border-radius: 2px;
 }
