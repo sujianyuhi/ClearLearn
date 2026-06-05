@@ -1,54 +1,79 @@
 # ClearLearn — 综合学习智能体
 
-一款集成多领域学习资源与 AI 智能答疑的 Web 应用，聚合英语词汇、驾考理论、历史知识四大板块，每个板块配备独立的 DeepSeek AI 对话助手，为用户提供一站式智能学习体验。
+<p align="center">
+  <img src="public/favicon.svg" alt="ClearLearn Logo" width="80" height="80">
+</p>
 
-![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript)
-![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?logo=vite)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.0-06B6D4?logo=tailwindcss)
-![DeepSeek](https://img.shields.io/badge/AI-DeepSeek-1E3A5F)
+<p align="center">
+  <b>一站式智能学习平台 · AI 赋能 · 多学科聚合</b>
+</p>
+
+<p align="center">
+  <a href="#"><img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React"></a>
+  <a href="#"><img src="https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white" alt="TypeScript"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Vite-8.0-646CFF?logo=vite&logoColor=white" alt="Vite"></a>
+  <a href="#"><img src="https://img.shields.io/badge/TailwindCSS-4.0-06B6D4?logo=tailwindcss&logoColor=white" alt="TailwindCSS"></a>
+  <a href="#"><img src="https://img.shields.io/badge/AI-DeepSeek-1E3A5F" alt="DeepSeek"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"></a>
+</p>
+
+<p align="center">
+  <a href="#功能特性">功能特性</a> •
+  <a href="#技术栈">技术栈</a> •
+  <a href="#快速开始">快速开始</a> •
+  <a href="#docker-部署">Docker 部署</a> •
+  <a href="#项目结构">项目结构</a>
+</p>
 
 ---
 
-## 目录
+## 简介
 
-- [功能特性](#功能特性)
-- [在线预览](#在线预览)
-- [技术栈](#技术栈)
-- [快速开始](#快速开始)
-- [环境变量配置](#环境变量配置)
-- [项目结构](#项目结构)
-- [API 接口](#api-接口)
-- [AI 对话功能](#ai-对话功能)
-- [开发计划](#开发计划)
-- [许可证](#许可证)
+**ClearLearn** 是一款面向学生、考证人群与终身学习者的智能学习 Web 应用。它将语文、数学、英语、历史、化学等多学科资源聚合于一处，并为每个学习板块配备基于 **DeepSeek** 大模型的独立 AI 对话助手，实现「学练结合、即问即答」的沉浸式学习体验。
+
+- 12+ 独立学习板块，覆盖多学科知识
+- 每个板块配备独立 AI 助手，上下文感知当前学习内容
+- 现代学术杂志风格 UI，深墨蓝 + 琥珀金配色，温暖专注
+- 流式 AI 响应、打字机效果、对话历史持久化
 
 ---
 
 ## 功能特性
 
-### 四大学习板块
+### 六大学习领域
 
-| 板块 | 功能描述 | 数据来源 |
-|---|---|---|
-| **每日英语** | 每日随机英语单词，展示音标、释义、例句、相关词汇与同义词 | xxapi.cn 随机单词接口 |
-| **单词详解** | 支持搜索任意英语单词，获取详细释义、常用短语、例句、同义词与相关词汇 | xxapi.cn 单词查询接口 |
-| **驾考练习** | 科目一/四随机题目，支持选项作答、答案判定与题目解析 | xxapi.cn 驾考题库接口 |
-| **历史上的今天** | 以时间轴形式展示当天发生的重要历史事件 | xxapi.cn 历史事件接口 |
+| 领域 | 板块 | 功能描述 |
+|:---|:---|:---|
+| **语文学习** | 随机谚语 | 品味中华传统智慧，随机展示经典谚语 |
+| | 成语字典 | 支持搜索任意成语，查看释义、出处与用法 |
+| | 随机成语 | 探寻中华成语之美，每日随机推荐 |
+| | 古诗文大全 | 收录经典诗词，赏析千年文学之美 |
+| **数学学习** | 小学数学挑战 | 每日一题，锻炼逻辑思维 |
+| **英语学习** | 每日英语 | 每日随机单词，展示音标、释义、例句与同义词 |
+| | 单词详解 | 搜索任意英语单词，获取深度解析与常用短语 |
+| **历史学习** | 历史上的今天 | 时间轴形式展示当天发生的重要历史事件 |
+| | 三国人物志 | 煮酒论英雄，探寻三国风云人物 |
+| **化学学习** | 元素周期表 | 探索化学元素的奥秘与特性 |
+| | 方程式配平 | 智能配平化学方程式 |
+| **实用工具** | 聚合翻译 | 支持 13 种语言互译 |
+| | 驾考练习 | 科目一/四模拟题，支持作答、判定与解析 |
 
-### AI 对话助手（每个板块独立）
+### AI 对话助手
 
-- **上下文感知**：AI 自动理解当前板块展示的内容，基于页面数据提供精准解答
-- **DeepSeek 驱动**：集成 DeepSeek 大模型，支持流式响应，打字机效果输出
-- **对话历史**：按板块隔离存储，支持查看历史问答、清空对话
-- **快速提问**：内置常用问题快捷入口，一键深入讲解
+每个学习板块右下角均配备独立的 AI 对话助手：
+
+- **上下文感知** — AI 自动读取当前板块的学习内容，基于页面数据提供精准解答
+- **DeepSeek 驱动** — 集成 DeepSeek 大模型，支持 SSE 流式响应与打字机效果输出
+- **对话隔离** — 各板块对话历史独立存储于 `localStorage`，互不干扰
+- **快捷提问** — 内置常用问题快捷入口，一键深入讲解
+- **历史回顾** — 支持查看过往问答、清空对话记录
 
 ### 系统特性
 
-- 现代学术杂志风格 UI，深墨蓝 + 琥珀金配色
-- 左侧导航栏 + 右侧内容区，板块切换流畅
-- 完全响应式布局，适配桌面端与移动端
+- 左侧分类导航栏 + 右侧内容区，板块切换流畅自然
+- 完全响应式布局，适配桌面端、平板与移动端
 - 加载骨架屏、错误重试、语音朗读等细节体验
+- 页面切换淡入淡出、卡片错开出现等精致动效
 
 ---
 
@@ -56,20 +81,20 @@
 
 ```bash
 npm run dev
-# 打开 http://localhost:5173
+# 浏览器访问 http://localhost:5173
 ```
 
 ---
 
 ## 技术栈
 
-- **前端框架**：React 18 + TypeScript
-- **构建工具**：Vite 5
-- **样式方案**：TailwindCSS 3
-- **路由**：React Router DOM 6
-- **图标**：Lucide React
-- **字体**：Noto Serif SC（标题）、LXGW WenKai（正文）
-- **AI 后端**：DeepSeek API（前端直连，流式 SSE）
+- **前端框架**: [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- **构建工具**: [Vite 8](https://vitejs.dev/)
+- **样式方案**: [TailwindCSS 4](https://tailwindcss.com/)
+- **路由**: [React Router DOM](https://reactrouter.com/)
+- **图标**: [Lucide React](https://lucide.dev/)
+- **字体**: Noto Serif SC（标题）、系统无衬线字体（正文）
+- **AI 后端**: [DeepSeek API](https://platform.deepseek.com/)（前端直连，流式 SSE）
 
 ---
 
@@ -77,18 +102,25 @@ npm run dev
 
 ### 环境要求
 
-- Node.js >= 18
+- Node.js >= 20
 - npm >= 9
 
-### 安装依赖
+### 1. 克隆仓库
+
+```bash
+git clone git@github.com:sujianyuhi/ClearLearn.git
+cd ClearLearn
+```
+
+### 2. 安装依赖
 
 ```bash
 npm install
 ```
 
-### 配置环境变量
+### 3. 配置环境变量
 
-复制示例文件并填入真实密钥：
+复制示例文件并填入你的 DeepSeek API 密钥：
 
 ```bash
 cp .env.example .env
@@ -102,7 +134,7 @@ VITE_DEEPSEEK_API_KEY=sk-your-real-api-key
 
 > 获取密钥：[DeepSeek 开放平台](https://platform.deepseek.com/)
 
-### 启动开发服务器
+### 4. 启动开发服务器
 
 ```bash
 npm run dev
@@ -110,7 +142,7 @@ npm run dev
 
 浏览器访问 `http://localhost:5173`
 
-### 生产构建
+### 5. 生产构建
 
 ```bash
 npm run build
@@ -120,13 +152,30 @@ npm run build
 
 ---
 
+## Docker 部署
+
+项目已内置 Dockerfile 与 docker-compose.yml，可一键容器化部署：
+
+```bash
+# 使用 docker-compose 启动（推荐）
+docker-compose up -d --build
+
+# 或手动构建运行
+docker build -t clearlearn .
+docker run -d -p 6777:80 --name clearlearn clearlearn
+```
+
+访问 `http://localhost:6777`
+
+---
+
 ## 环境变量配置
 
 | 变量名 | 必填 | 默认值 | 说明 |
-|---|---|---|---|
-| `VITE_DEEPSEEK_API_KEY` | 是 | — | DeepSeek API 密钥 |
-| `VITE_DEEPSEEK_API_URL` | 否 | `https://api.deepseek.com/chat/completions` | API 请求地址 |
-| `VITE_DEEPSEEK_MODEL` | 否 | `deepseek-chat` | 模型名称 |
+|:---|:---:|:---|:---|
+| `VITE_DEEPSEEK_API_KEY` | ✅ | — | DeepSeek API 密钥 |
+| `VITE_DEEPSEEK_API_URL` | ❌ | `https://api.deepseek.com/chat/completions` | API 请求地址 |
+| `VITE_DEEPSEEK_MODEL` | ❌ | `deepseek-chat` | 模型名称 |
 
 > `.env` 文件已加入 `.gitignore`，不会提交到 GitHub。
 
@@ -136,92 +185,70 @@ npm run build
 
 ```
 ClearLearn/
-├── .trae/documents/          # PRD 与技术架构文档
-├── public/                   # 静态资源
+├── public/                       # 静态资源
 ├── src/
-│   ├── components/           # 公共组件
-│   │   ├── Sidebar.tsx       # 左侧导航栏
-│   │   ├── ChatPanel.tsx     # AI 对话面板
-│   │   └── LoadingCard.tsx   # 加载骨架屏
-│   ├── pages/                # 功能板块页面
-│   │   ├── DailyEnglish.tsx  # 每日英语
-│   │   ├── WordDetail.tsx    # 单词详解
-│   │   ├── DrivingTest.tsx   # 驾考练习
-│   │   └── TodayInHistory.tsx # 历史上的今天
-│   ├── context/
-│   │   └── ChatContext.tsx   # AI 对话状态管理
-│   ├── hooks/
-│   │   ├── useApi.ts         # API 请求封装
-│   │   └── useLocalStorage.ts # 本地存储 Hook
-│   ├── types/
-│   │   └── index.ts          # TypeScript 类型定义
-│   ├── utils/
-│   │   └── helpers.ts        # 工具函数
-│   ├── App.tsx               # 根组件（路由配置）
-│   └── main.tsx              # 应用入口
-├── .env                      # 环境变量（本地私有）
-├── .env.example              # 环境变量示例
-├── .gitignore
+│   ├── assets/                   # 图片资源
+│   ├── components/               # 公共组件
+│   │   ├── Sidebar.tsx           # 左侧分类导航栏
+│   │   ├── ChatPanel.tsx         # AI 对话面板
+│   │   ├── MarkdownRenderer.tsx  # Markdown 消息渲染
+│   │   └── LoadingCard.tsx       # 加载骨架屏
+│   ├── context/                  # React Context 状态管理
+│   │   ├── ChatProvider.tsx      # 对话状态 Provider
+│   │   └── chatContext.ts        # 对话上下文
+│   ├── hooks/                    # 自定义 Hooks
+│   │   ├── useApi.ts             # API 请求封装
+│   │   ├── useChat.ts            # AI 对话逻辑
+│   │   └── useLocalStorage.ts    # 本地存储 Hook
+│   ├── pages/                    # 学习板块页面
+│   │   ├── DailyEnglish.tsx      # 每日英语
+│   │   ├── WordDetail.tsx        # 单词详解
+│   │   ├── DrivingTest.tsx       # 驾考练习
+│   │   ├── TodayInHistory.tsx    # 历史上的今天
+│   │   ├── SanguoHeroes.tsx      # 三国人物志
+│   │   ├── Translator.tsx        # 聚合翻译
+│   │   ├── Proverbs.tsx          # 随机谚语
+│   │   ├── Idioms.tsx            # 随机成语
+│   │   ├── IdiomDictionary.tsx   # 成语字典
+│   │   ├── Poetry.tsx            # 古诗文大全
+│   │   ├── MathQuiz.tsx          # 小学数学挑战
+│   │   ├── ChemicalElement.tsx   # 元素周期表
+│   │   └── EquationBalancer.tsx  # 方程式配平
+│   ├── types/                    # TypeScript 类型定义
+│   ├── utils/                    # 工具函数
+│   ├── App.tsx                   # 根组件（路由配置）
+│   ├── main.tsx                  # 应用入口
+│   └── index.css                 # 全局样式
+├── .trae/documents/              # PRD 与技术架构文档
+├── .env                          # 环境变量（本地私有，不提交）
+├── .env.example                  # 环境变量示例
+├── Dockerfile                    # Docker 构建文件
+├── docker-compose.yml            # Docker Compose 配置
+├── nginx.conf                    # Nginx 配置
 ├── index.html
 ├── package.json
 ├── vite.config.ts
-├── tailwind.config.js
 └── tsconfig.json
 ```
 
 ---
 
-## API 接口
-
-### 学习数据接口（前端直接调用）
-
-| 接口 | 用途 | 响应格式 |
-|---|---|---|
-| `GET https://v2.xxapi.cn/api/randomenglishwords` | 随机英语单词 | 单词详情对象 |
-| `GET https://v2.xxapi.cn/api/englishwords?word={word}` | 单词详解 | 单词详情对象 |
-| `GET https://v2.xxapi.cn/api/jiakao?subject=1` | 驾考题目 | 题目对象 |
-| `GET https://v2.xxapi.cn/api/history` | 历史事件 | 字符串数组 |
-
-### AI 对话接口（前端直连 DeepSeek）
-
-| 接口 | 方法 | 说明 |
-|---|---|---|
-| `POST /chat/completions` | SSE 流式 | DeepSeek Chat API，支持上下文对话 |
-
----
-
-## AI 对话功能
-
-### 工作原理
+## AI 对话工作原理
 
 1. 用户打开任意板块，浏览当前学习内容
 2. 点击右下角悬浮按钮，展开 AI 对话面板
 3. 输入问题，系统自动组装当前板块的上下文数据作为 System Prompt
 4. 发送至 DeepSeek API，流式返回 AI 回答
-5. 对话记录按板块隔离保存在 `localStorage` 中
-
-### 各板块 System Prompt 示例
-
-- **每日英语**：「你是一个英语学习助手。当前展示的单词信息如下：... 请基于这个单词为用户提供详细讲解...」
-- **单词详解**：「你是一个英语学习助手。当前用户查询的单词信息如下：... 请基于这个单词为用户提供深度解析...」
-- **驾考练习**：「你是一个驾考理论教练。当前驾考题目信息如下：... 请为用户解释这道题的考点、交规原理...」
-- **历史上的今天**：「你是一个历史学者。今天历史上的重要事件如下：... 请为用户深入解读这些历史事件的背景...」
+5. 对话记录按板块隔离保存在 `localStorage` 中，键名为 `clearlearn_chat_history`
 
 ---
 
-## 开发计划
+## 开源协议
 
-- [x] 四大学习板块基础功能
-- [x] 独立 AI 对话助手（DeepSeek 集成）
-- [x] 对话历史记录与流式响应
-- [x] 响应式布局与移动端适配
-- [ ] 后端代理服务（解决 API 跨域与密钥安全）
-- [ ] 用户登录与云端同步对话历史
-- [ ] 学习进度统计与打卡功能
-- [ ] 深色模式支持
+本项目基于 [MIT License](./LICENSE) 开源。
 
 ---
 
-## 许可证
-
-MIT License
+<p align="center">
+  Made with by <a href="https://github.com/sujianyuhi">sujianyuhi</a>
+</p>
