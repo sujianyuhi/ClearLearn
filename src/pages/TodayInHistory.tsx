@@ -3,6 +3,7 @@ import { useApi } from '../hooks/useApi';
 import type { HistoryEventData } from '../types';
 import LoadingCard from '../components/LoadingCard';
 import ChatPanel from '../components/ChatPanel';
+import { PageHeader, ErrorState, EmptyState, ActionButton } from '../components/UI';
 
 interface ParsedHistoryEvent {
   date: string;
@@ -37,28 +38,37 @@ export default function TodayInHistory() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-amber/20 flex items-center justify-center">
-            <CalendarDays size={20} className="text-amber" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-ink font-serif">历史上的今天</h1>
-            <p className="text-sm text-muted">回顾历史长河中的今天，汲取智慧与力量</p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={CalendarDays}
+        title="历史上的今天"
+        description="回顾历史长河中的今天，汲取智慧与力量"
+        accent="amber"
+      >
+        <ActionButton
+          onClick={refetch}
+          loading={loading}
+          variant="secondary"
+          size="md"
+          icon={<Clock size={15} />}
+        >
+          刷新
+        </ActionButton>
+      </PageHeader>
 
       {/* Today Badge */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-ink flex items-center justify-center flex-shrink-0">
-            <Clock size={28} className="text-amber" />
+      <div className="relative bg-white rounded-2xl p-6 shadow-card border border-line-soft mb-6 overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-amber/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-ink/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+        <div className="relative flex items-center gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 bg-amber/20 rounded-2xl blur-lg scale-110" />
+            <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-ink to-ink-deep flex items-center justify-center flex-shrink-0 shadow-lg shadow-ink/20">
+              <Clock size={28} className="text-amber" />
+            </div>
           </div>
           <div>
             <p className="text-sm text-muted mb-1">今天是</p>
-            <h2 className="text-3xl font-bold text-ink font-serif">{monthDay}</h2>
+            <h2 className="text-3xl font-bold text-ink font-serif tracking-tight">{monthDay}</h2>
           </div>
         </div>
       </div>
@@ -72,41 +82,33 @@ export default function TodayInHistory() {
         </div>
       )}
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-          <p className="text-red-600 mb-3">{error}</p>
-          <button
-            onClick={refetch}
-            className="px-4 py-2 bg-ink text-white rounded-lg text-sm hover:bg-ink/90 transition-colors"
-          >
-            重新加载
-          </button>
-        </div>
-      )}
+      {error && <ErrorState message={error} onRetry={refetch} />}
 
       {data && (
         <div className="relative">
           {/* Timeline Line */}
-          <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-amber/30" />
+          <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber/50 via-amber/30 to-transparent" />
 
           {/* Events */}
-          <div className="space-y-6">
+          <div className="space-y-5">
             {parsedEvents.map((event, index) => (
               <div
                 key={index}
                 className="relative pl-16 animate-fade-in-up"
-                style={{ animationDelay: `${index * 100}ms` }}
+                style={{ animationDelay: `${index * 80}ms` }}
               >
                 {/* Timeline Dot */}
-                <div className="absolute left-4 top-5 w-5 h-5 rounded-full bg-amber border-4 border-ivory shadow-sm" />
+                <div className="absolute left-[18px] top-6 w-3.5 h-3.5 rounded-full bg-gradient-to-br from-amber to-amber-deep border-4 border-ivory shadow-sm" />
 
                 {/* Event Card */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="bg-white rounded-2xl p-6 shadow-card border border-line-soft hover:shadow-card-hover hover:border-amber/30 transition-all duration-300">
                   <div className="flex items-center gap-2 mb-3">
-                    <MapPin size={14} className="text-amber" />
-                    <span className="text-sm font-medium text-ink">{event.date}</span>
+                    <div className="w-6 h-6 rounded-md bg-amber/15 flex items-center justify-center">
+                      <MapPin size={12} className="text-amber-deep" />
+                    </div>
+                    <span className="text-sm font-medium text-ink font-mono tracking-wide">{event.date}</span>
                   </div>
-                  <h3 className="text-lg font-medium text-ink font-serif leading-relaxed">
+                  <h3 className="text-base font-medium text-charcoal font-serif leading-relaxed">
                     {event.title}
                   </h3>
                 </div>
@@ -116,10 +118,13 @@ export default function TodayInHistory() {
         </div>
       )}
 
-      {data && data.length === 0 && (
-        <div className="text-center py-16">
-          <CalendarDays size={32} className="mx-auto mb-3 text-muted" />
-          <p className="text-muted">暂无今日历史事件数据</p>
+      {data && data.length === 0 && !loading && (
+        <div className="bg-white rounded-2xl border border-line-soft shadow-card">
+          <EmptyState
+            icon={CalendarDays}
+            title="暂无今日历史事件"
+            description="今日没有查询到历史事件数据"
+          />
         </div>
       )}
 

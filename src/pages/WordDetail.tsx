@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react';
-import { Search, BookMarked, Play, Pause } from 'lucide-react';
+import { Search, BookMarked, Play, Pause, Tag, Volume2, BookOpen, Sparkles } from 'lucide-react';
 import { useApi } from '../hooks/useApi';
 import type { WordDetailData } from '../types';
 import LoadingCard from '../components/LoadingCard';
 import ChatPanel from '../components/ChatPanel';
+import { PageHeader, SectionTitle, ErrorState, OrnamentDivider, SearchInput, EmptyState, ActionButton } from '../components/UI';
 
 export default function WordDetail() {
   const [searchWord, setSearchWord] = useState('');
@@ -17,8 +18,8 @@ export default function WordDetail() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playingType, setPlayingType] = useState<'us' | 'uk' | null>(null);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (searchWord.trim()) {
       setQueryWord(searchWord.trim());
     }
@@ -41,48 +42,40 @@ export default function WordDetail() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-amber/20 flex items-center justify-center">
-            <BookMarked size={20} className="text-amber" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-ink font-serif">单词详解</h1>
-            <p className="text-sm text-muted">深入查询英语单词的详细释义和用法</p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={BookMarked}
+        title="单词详解"
+        description="深入查询英语单词的详细释义和用法"
+        accent="amber"
+      />
 
       {/* Search */}
-      <form onSubmit={handleSearch} className="mb-8">
+      <form onSubmit={handleSearch} className="mb-6">
         <div className="flex gap-3">
-          <div className="flex-1 relative">
-            <input
-              type="text"
+          <div className="flex-1">
+            <SearchInput
               value={searchWord}
-              onChange={(e) => setSearchWord(e.target.value)}
+              onChange={setSearchWord}
+              onSubmit={() => handleSearch()}
               placeholder="输入要查询的英语单词..."
-              className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber focus:border-transparent text-charcoal placeholder:text-muted"
+              icon={Search}
+              size="lg"
             />
-            <Search size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted" />
           </div>
-          <button
-            type="submit"
+          <ActionButton
+            onClick={() => handleSearch()}
             disabled={!searchWord.trim()}
-            className={`px-6 py-3.5 rounded-xl font-medium transition-all ${
-              searchWord.trim()
-                ? 'bg-ink text-white hover:bg-ink/90'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            }`}
+            variant="primary"
+            size="lg"
+            icon={<Search size={15} />}
           >
             查询
-          </button>
+          </ActionButton>
         </div>
 
         {/* Sample Words */}
-        <div className="flex items-center gap-2 mt-4 flex-wrap">
-          <span className="text-xs text-muted">试试这些词：</span>
+        <div className="flex items-center gap-2 mt-4 flex-wrap px-1">
+          <span className="text-xs text-muted/70">试试这些词：</span>
           {sampleWords.map((word) => (
             <button
               key={word}
@@ -90,7 +83,7 @@ export default function WordDetail() {
                 setSearchWord(word);
                 setQueryWord(word);
               }}
-              className="px-3 py-1 bg-ivory text-ink rounded-full text-xs hover:bg-amber/20 transition-colors"
+              className="px-3 py-1 bg-white text-ink rounded-full text-xs border border-line hover:border-amber/40 hover:bg-amber/5 hover:text-amber-deep transition-all duration-200 font-mono"
             >
               {word}
             </button>
@@ -101,103 +94,93 @@ export default function WordDetail() {
       {/* Results */}
       {loading && <LoadingCard />}
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-          <p className="text-red-600 mb-3">{error}</p>
-          <button
-            onClick={refetch}
-            className="px-4 py-2 bg-ink text-white rounded-lg text-sm hover:bg-ink/90 transition-colors"
-          >
-            重新加载
-          </button>
-        </div>
-      )}
+      {error && <ErrorState message={error} onRetry={refetch} />}
 
       {data && (
-        <div className="space-y-6">
-          {/* Word Header */}
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex-1">
-                <h2 className="text-5xl font-bold text-ink font-serif mb-4">
-                  {data.word || queryWord}
-                </h2>
+        <div className="space-y-5 stagger-children">
+          {/* Word Header Card */}
+          <div className="relative bg-white rounded-2xl p-8 md:p-10 shadow-card border border-line-soft overflow-hidden">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-amber/5 rounded-full -translate-y-1/2 translate-x-1/4" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-ink/5 rounded-full translate-y-1/2 -translate-x-1/4" />
 
-                {/* Phonetics */}
-                <div className="flex flex-wrap items-center gap-4">
-                  {data.usphone && (
-                    <div className="flex items-center gap-2 bg-ivory px-4 py-2 rounded-lg">
-                      <span className="text-xs font-bold text-amber">US</span>
-                      <span className="text-charcoal">/{data.usphone}/</span>
-                      {data.usspeech && (
-                        <button
-                          onClick={() => playAudio(data.usspeech!, 'us')}
-                          className="p-1 rounded-full hover:bg-amber/20 transition-colors"
-                          title="播放美式发音"
-                        >
-                          {playingType === 'us' ? (
-                            <Pause size={14} className="text-amber" />
-                          ) : (
-                            <Play size={14} className="text-amber" />
-                          )}
-                        </button>
-                      )}
-                    </div>
-                  )}
-                  {data.ukphone && (
-                    <div className="flex items-center gap-2 bg-ivory px-4 py-2 rounded-lg">
-                      <span className="text-xs font-bold text-amber">UK</span>
-                      <span className="text-charcoal">/{data.ukphone}/</span>
-                      {data.ukspeech && (
-                        <button
-                          onClick={() => playAudio(data.ukspeech!, 'uk')}
-                          className="p-1 rounded-full hover:bg-amber/20 transition-colors"
-                          title="播放英式发音"
-                        >
-                          {playingType === 'uk' ? (
-                            <Pause size={14} className="text-amber" />
-                          ) : (
-                            <Play size={14} className="text-amber" />
-                          )}
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
+            <div className="relative">
+              <div className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-1 bg-amber/10 text-amber-deep rounded-md text-xs font-medium">
+                <Sparkles size={11} />
+                Word Lookup
+              </div>
+              <h2 className="text-5xl md:text-6xl font-bold text-ink font-serif mb-5 tracking-tight">
+                {data.word || queryWord}
+              </h2>
+
+              {/* Phonetics */}
+              <div className="flex flex-wrap items-center gap-3">
+                {data.usphone && (
+                  <div className="flex items-center gap-2.5 bg-ivory px-4 py-2.5 rounded-xl border border-amber/10">
+                    <span className="text-[10px] font-bold text-amber-deep bg-amber/15 px-2 py-0.5 rounded-md">US</span>
+                    <span className="text-charcoal font-mono text-sm">/{data.usphone}/</span>
+                    {data.usspeech && (
+                      <button
+                        onClick={() => playAudio(data.usspeech!, 'us')}
+                        className="p-1.5 rounded-full hover:bg-amber/20 transition-colors text-amber-deep"
+                        title="播放美式发音"
+                      >
+                        {playingType === 'us' ? <Pause size={14} /> : <Play size={14} />}
+                      </button>
+                    )}
+                  </div>
+                )}
+                {data.ukphone && (
+                  <div className="flex items-center gap-2.5 bg-ivory px-4 py-2.5 rounded-xl border border-amber/10">
+                    <span className="text-[10px] font-bold text-amber-deep bg-amber/15 px-2 py-0.5 rounded-md">UK</span>
+                    <span className="text-charcoal font-mono text-sm">/{data.ukphone}/</span>
+                    {data.ukspeech && (
+                      <button
+                        onClick={() => playAudio(data.ukspeech!, 'uk')}
+                        className="p-1.5 rounded-full hover:bg-amber/20 transition-colors text-amber-deep"
+                        title="播放英式发音"
+                      >
+                        {playingType === 'uk' ? <Pause size={14} /> : <Play size={14} />}
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
+          </div>
 
-            {/* Meanings */}
-            {data.translations && data.translations.length > 0 && (
-              <div className="space-y-3">
+          {/* Translations */}
+          {data.translations && data.translations.length > 0 && (
+            <div className="bg-white rounded-2xl p-6 md:p-8 shadow-card border border-line-soft">
+              <SectionTitle icon={Tag} title="释义" accent="amber" count={data.translations.length} />
+              <div className="space-y-2.5">
                 {data.translations.map((t, index) => (
-                  <div key={index} className="flex items-start gap-3 p-4 bg-ivory rounded-xl">
-                    <span className="px-2.5 py-1 bg-amber text-ink text-xs font-bold rounded-md flex-shrink-0">
+                  <div
+                    key={index}
+                    className="flex items-start gap-3 p-4 bg-ivory rounded-xl border border-amber/8 hover:border-amber/20 transition-colors"
+                  >
+                    <span className="px-2.5 py-1 bg-gradient-to-br from-amber to-amber-deep text-ink text-xs font-bold rounded-md flex-shrink-0 shadow-sm">
                       {t.pos}
                     </span>
-                    <p className="text-charcoal text-lg leading-relaxed">{t.tran_cn}</p>
+                    <p className="text-charcoal text-[15px] leading-relaxed flex-1">{t.tran_cn}</p>
                   </div>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Phrases */}
           {data.phrases && data.phrases.length > 0 && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h3 className="text-lg font-medium text-ink mb-4 font-serif flex items-center gap-2">
-                <span className="w-1 h-5 bg-amber rounded-full"></span>
-                常用短语
-              </h3>
-              <div className="space-y-3">
+            <div className="bg-white rounded-2xl p-6 md:p-8 shadow-card border border-line-soft">
+              <SectionTitle icon={Volume2} title="常用短语" accent="amber" count={data.phrases.length} />
+              <div className="space-y-2.5">
                 {data.phrases.map((phrase, index) => (
-                  <div key={index} className="flex items-start gap-3 p-4 bg-ivory rounded-xl">
-                    <span className="w-7 h-7 rounded-full bg-amber/20 flex items-center justify-center flex-shrink-0 text-xs font-bold text-amber">
+                  <div key={index} className="flex items-start gap-3 p-4 bg-ivory rounded-xl border border-amber/8">
+                    <span className="w-7 h-7 rounded-full bg-amber/15 text-amber-deep flex items-center justify-center flex-shrink-0 text-xs font-bold">
                       {index + 1}
                     </span>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <p className="font-medium text-ink text-base">{phrase.p_content}</p>
-                      <p className="text-muted text-sm mt-1">{phrase.p_cn}</p>
+                      <p className="text-muted text-sm mt-1 leading-relaxed">{phrase.p_cn}</p>
                     </div>
                   </div>
                 ))}
@@ -205,25 +188,23 @@ export default function WordDetail() {
             </div>
           )}
 
-          {/* Examples */}
+          {/* Sentences */}
           {data.sentences && data.sentences.length > 0 && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h3 className="text-lg font-medium text-ink mb-4 font-serif flex items-center gap-2">
-                <span className="w-1 h-5 bg-amber rounded-full"></span>
-                例句
-              </h3>
+            <div className="bg-white rounded-2xl p-6 md:p-8 shadow-card border border-line-soft">
+              <SectionTitle icon={BookOpen} title="例句" accent="amber" count={data.sentences.length} />
               <div className="space-y-4">
                 {data.sentences.map((sent, index) => (
-                  <div key={index} className="border-b border-gray-100 last:border-0 pb-4 last:pb-0">
-                    <div className="flex items-start gap-3">
-                      <span className="w-7 h-7 rounded-full bg-ink/10 flex items-center justify-center flex-shrink-0 text-xs font-bold text-ink mt-0.5">
-                        {index + 1}
-                      </span>
-                      <div className="flex-1">
-                        <p className="text-charcoal italic leading-relaxed text-base">{sent.s_content}</p>
-                        <p className="text-muted text-sm mt-2">{sent.s_cn}</p>
-                      </div>
-                    </div>
+                  <div
+                    key={index}
+                    className="relative pl-11 pb-4 last:pb-0 border-b border-line-soft last:border-0"
+                  >
+                    <span className="absolute left-0 top-0 w-7 h-7 rounded-full bg-gradient-to-br from-ink to-ink-light text-white flex items-center justify-center text-xs font-bold shadow-sm">
+                      {index + 1}
+                    </span>
+                    <p className="text-charcoal italic leading-relaxed text-base font-serif">
+                      {sent.s_content}
+                    </p>
+                    <p className="text-muted text-sm mt-2 leading-relaxed">{sent.s_cn}</p>
                   </div>
                 ))}
               </div>
@@ -232,27 +213,27 @@ export default function WordDetail() {
 
           {/* Synonyms */}
           {data.synonyms && data.synonyms.length > 0 && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h3 className="text-lg font-medium text-ink mb-4 font-serif flex items-center gap-2">
-                <span className="w-1 h-5 bg-amber rounded-full"></span>
-                同义词
-              </h3>
-              <div className="space-y-3">
+            <div className="bg-white rounded-2xl p-6 md:p-8 shadow-card border border-line-soft">
+              <SectionTitle icon={Sparkles} title="同义词" accent="emerald" count={data.synonyms.length} />
+              <div className="space-y-2.5">
                 {data.synonyms.map((syn, index) => (
-                  <div key={index} className="flex items-start gap-3 p-4 bg-ivory rounded-xl">
-                    <span className="px-2.5 py-1 bg-ink/10 text-ink text-xs font-bold rounded-md flex-shrink-0">
-                      {syn.pos}
-                    </span>
-                    <div className="flex-1">
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        {syn.Hwds.map((hw, i) => (
-                          <span key={i} className="px-3 py-1 bg-white text-ink text-sm font-medium rounded-lg border border-gray-100">
-                            {hw.word}
-                          </span>
-                        ))}
-                      </div>
-                      <p className="text-sm text-muted">{syn.tran}</p>
+                  <div key={index} className="p-4 bg-ivory rounded-xl border border-amber/8">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="px-2.5 py-1 bg-ink/8 text-ink text-xs font-bold rounded-md">
+                        {syn.pos}
+                      </span>
                     </div>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {syn.Hwds.map((hw, i) => (
+                        <span
+                          key={i}
+                          className="px-3 py-1.5 bg-white text-ink text-sm font-medium rounded-lg border border-emerald-500/15 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-colors"
+                        >
+                          {hw.word}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="text-sm text-muted leading-relaxed">{syn.tran}</p>
                   </div>
                 ))}
               </div>
@@ -261,18 +242,17 @@ export default function WordDetail() {
 
           {/* Related Words */}
           {data.relWords && data.relWords.length > 0 && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h3 className="text-lg font-medium text-ink mb-4 font-serif flex items-center gap-2">
-                <span className="w-1 h-5 bg-amber rounded-full"></span>
-                相关词汇
-              </h3>
-              <div className="space-y-3">
+            <div className="bg-white rounded-2xl p-6 md:p-8 shadow-card border border-line-soft">
+              <SectionTitle icon={Tag} title="相关词汇" accent="purple" count={data.relWords.length} />
+              <div className="space-y-2.5">
                 {data.relWords.map((rel, index) => (
-                  <div key={index} className="flex items-start gap-3 p-4 bg-ivory rounded-xl">
-                    <span className="px-2.5 py-1 bg-amber text-ink text-xs font-bold rounded-md flex-shrink-0">
-                      {rel.Pos}
-                    </span>
-                    <div className="space-y-2">
+                  <div key={index} className="p-4 bg-ivory rounded-xl border border-amber/8">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="px-2.5 py-1 bg-amber/15 text-amber-deep text-xs font-bold rounded-md">
+                        {rel.Pos}
+                      </span>
+                    </div>
+                    <div className="space-y-1.5">
                       {rel.Hwds.map((hw, i) => (
                         <div key={i} className="text-sm">
                           <span className="font-medium text-ink text-base">{hw.hwd}</span>
@@ -285,16 +265,18 @@ export default function WordDetail() {
               </div>
             </div>
           )}
+
+          <OrnamentDivider />
         </div>
       )}
 
       {!data && !loading && !error && (
-        <div className="text-center py-16">
-          <div className="w-20 h-20 rounded-full bg-ivory flex items-center justify-center mx-auto mb-4">
-            <Search size={32} className="text-muted" />
-          </div>
-          <h3 className="text-lg font-medium text-ink mb-2 font-serif">开始查询</h3>
-          <p className="text-sm text-muted">输入英语单词，获取详细释义和用法</p>
+        <div className="bg-white rounded-2xl border border-line-soft shadow-card">
+          <EmptyState
+            icon={Search}
+            title="开始查询"
+            description="输入英语单词，获取详细释义、词组、例句和同义词"
+          />
         </div>
       )}
 

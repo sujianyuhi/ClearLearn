@@ -3,6 +3,7 @@ import { RefreshCw, Calculator, CheckCircle, Lightbulb, BookOpen, BrainCircuit }
 import type { MathQuestionData } from '../types';
 import LoadingCard from '../components/LoadingCard';
 import ChatPanel from '../components/ChatPanel';
+import { PageHeader, ErrorState, OrnamentDivider, ActionButton } from '../components/UI';
 
 export default function MathQuiz() {
   const [data, setData] = useState<MathQuestionData | null>(null);
@@ -50,53 +51,50 @@ export default function MathQuiz() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-emerald/20 flex items-center justify-center">
-            <Calculator size={20} className="text-emerald" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-ink font-serif">小学数学挑战</h1>
-            <p className="text-sm text-muted">每日一题，锻炼思维，快乐学数学</p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={Calculator}
+        title="小学数学挑战"
+        description="每日一题，锻炼思维，快乐学数学"
+        accent="emerald"
+      >
+        <ActionButton
+          onClick={fetchQuestion}
+          loading={loading}
+          variant="secondary"
+          size="md"
+          icon={<RefreshCw size={15} className={loading ? 'animate-spin' : ''} />}
+        >
+          换一题
+        </ActionButton>
+      </PageHeader>
 
       {/* Content */}
       {loading && !data && <LoadingCard />}
 
-      {error && !data && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-          <p className="text-red-600 mb-3">{error}</p>
-          <button
-            onClick={fetchQuestion}
-            className="px-4 py-2 bg-ink text-white rounded-lg text-sm hover:bg-ink/90 transition-colors"
-          >
-            重新加载
-          </button>
-        </div>
-      )}
+      {error && !data && <ErrorState message={error} onRetry={fetchQuestion} />}
 
       {data && (
-        <div key={data.timu} className="space-y-6 animate-fade-in-up">
+        <div key={data.timu} className="space-y-5 stagger-children">
           {/* Question Card */}
-          <div className="relative bg-white rounded-2xl p-8 md:p-12 shadow-sm border border-gray-100 overflow-hidden">
+          <div className="relative bg-white rounded-2xl p-8 md:p-12 shadow-card border border-line-soft overflow-hidden">
             {/* Decorative Background */}
-            <div className="absolute top-0 right-0 w-48 h-48 bg-emerald/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-amber/5 rounded-full translate-y-1/2 -translate-x-1/2" />
 
             <div className="relative">
               {/* Top Icon */}
               <div className="flex justify-center mb-6">
-                <div className="w-16 h-16 rounded-2xl bg-emerald/10 flex items-center justify-center shadow-sm">
-                  <BrainCircuit size={32} className="text-emerald" />
+                <div className="relative">
+                  <div className="absolute inset-0 bg-emerald-500/20 rounded-2xl blur-xl scale-125" />
+                  <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/15 to-emerald-500/5 flex items-center justify-center border border-emerald-500/20">
+                    <BrainCircuit size={30} className="text-emerald-600" />
+                  </div>
                 </div>
               </div>
 
               {/* Question Label */}
               <div className="flex justify-center mb-4">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald/10 text-emerald text-xs font-medium">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 text-xs font-medium border border-emerald-500/15">
                   <BookOpen size={12} />
                   应用题
                 </span>
@@ -104,26 +102,22 @@ export default function MathQuiz() {
 
               {/* Question Text */}
               <div className="text-center mb-10">
-                <h2 className="text-xl md:text-2xl font-bold text-ink leading-relaxed tracking-wide">
+                <h2 className="text-xl md:text-2xl font-bold text-ink leading-relaxed tracking-wide font-serif">
                   {data.timu}
                 </h2>
               </div>
 
               {/* Divider */}
-              <div className="flex items-center justify-center gap-4 mb-8">
-                <div className="h-px w-12 bg-emerald/20" />
-                <div className="w-2 h-2 rounded-full bg-emerald/40" />
-                <div className="h-px w-12 bg-emerald/20" />
-              </div>
+              <OrnamentDivider className="my-6" />
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap justify-center gap-3 mb-8">
+              <div className="flex flex-wrap justify-center gap-3 mb-6">
                 <button
                   onClick={() => setShowAnswer(!showAnswer)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 active:scale-95 ${
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 active:scale-95 border ${
                     showAnswer
-                      ? 'bg-emerald text-white shadow-md'
-                      : 'bg-emerald/10 text-emerald hover:bg-emerald/20'
+                      ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-md border-emerald-500'
+                      : 'bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/15 border-emerald-500/15'
                   }`}
                 >
                   <CheckCircle size={16} />
@@ -131,10 +125,10 @@ export default function MathQuiz() {
                 </button>
                 <button
                   onClick={() => setShowAnalysis(!showAnalysis)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 active:scale-95 ${
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 active:scale-95 border ${
                     showAnalysis
-                      ? 'bg-amber text-white shadow-md'
-                      : 'bg-amber/10 text-amber hover:bg-amber/20'
+                      ? 'bg-gradient-to-br from-amber to-amber-deep text-ink shadow-md border-amber'
+                      : 'bg-amber/10 text-amber-deep hover:bg-amber/15 border-amber/15'
                   }`}
                 >
                   <Lightbulb size={16} />
@@ -144,11 +138,13 @@ export default function MathQuiz() {
 
               {/* Answer Section */}
               {showAnswer && (
-                <div className="animate-fade-in-up mb-6">
-                  <div className="bg-emerald/5 border border-emerald/15 rounded-xl p-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <CheckCircle size={18} className="text-emerald" />
-                      <h3 className="text-base font-medium text-ink font-serif">正确答案</h3>
+                <div className="animate-fade-in-up mb-5">
+                  <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-6">
+                    <div className="flex items-center gap-2.5 mb-3">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-500/15 flex items-center justify-center">
+                        <CheckCircle size={16} className="text-emerald-600" />
+                      </div>
+                      <h3 className="text-base font-semibold text-ink font-serif">正确答案</h3>
                     </div>
                     <p className="text-charcoal text-lg leading-relaxed font-medium">
                       {data.daan}
@@ -161,9 +157,11 @@ export default function MathQuiz() {
               {showAnalysis && (
                 <div className="animate-fade-in-up">
                   <div className="bg-amber/5 border border-amber/15 rounded-xl p-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Lightbulb size={18} className="text-amber" />
-                      <h3 className="text-base font-medium text-ink font-serif">解题思路</h3>
+                    <div className="flex items-center gap-2.5 mb-3">
+                      <div className="w-8 h-8 rounded-lg bg-amber/15 flex items-center justify-center">
+                        <Lightbulb size={16} className="text-amber-deep" />
+                      </div>
+                      <h3 className="text-base font-semibold text-ink font-serif">解题思路</h3>
                     </div>
                     <div className="text-charcoal leading-relaxed whitespace-pre-line">
                       {data.jiexi}
@@ -174,26 +172,27 @@ export default function MathQuiz() {
 
               {/* Next Question Button */}
               <div className="flex justify-center mt-8">
-                <button
+                <ActionButton
                   onClick={fetchQuestion}
-                  disabled={loading}
-                  className="flex items-center gap-2 px-6 py-3 bg-ink text-white rounded-xl hover:bg-ink/90 transition-all duration-200 text-sm shadow-md hover:shadow-lg active:scale-95 disabled:opacity-60"
+                  loading={loading}
+                  variant="primary"
+                  size="md"
+                  icon={<RefreshCw size={15} className={loading ? 'animate-spin' : ''} />}
                 >
-                  <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-                  <span>再来一题</span>
-                </button>
+                  再来一题
+                </ActionButton>
               </div>
             </div>
           </div>
 
           {/* Tips Card */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="bg-white rounded-2xl p-6 shadow-card border border-line-soft">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-emerald/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Calculator size={18} className="text-emerald" />
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Calculator size={18} className="text-emerald-600" />
               </div>
               <div>
-                <h3 className="text-base font-medium text-ink mb-2 font-serif">学习小贴士</h3>
+                <h3 className="text-base font-semibold text-ink mb-2 font-serif">学习小贴士</h3>
                 <p className="text-muted text-sm leading-relaxed">
                   小学数学应用题是培养逻辑思维的重要方式。解题时建议先仔细阅读题目，
                   找出已知条件和所求问题，再选择合适的运算方法。

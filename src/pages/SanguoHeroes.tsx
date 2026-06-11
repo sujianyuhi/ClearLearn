@@ -3,33 +3,34 @@ import { Swords, Search, MapPin, User, Calendar, BookOpen, Shield, Sparkles } fr
 import type { SanguoPersonData } from '../types';
 import LoadingCard from '../components/LoadingCard';
 import ChatPanel from '../components/ChatPanel';
+import { PageHeader, ErrorState, EmptyState, SearchInput, ActionButton } from '../components/UI';
 
 const API_URL = 'https://cn.apihz.cn/api/zici/sanguo.php?id=10017576&key=1356a3698c81abe43c2eacb627cb6c91';
 
 const HOT_HEROES = ['关羽', '刘备', '张飞', '诸葛亮', '曹操', '孙权', '赵云', '吕布', '周瑜', '司马懿'];
 
-function getGuoColor(guo: string): { bg: string; text: string; border: string; icon: string } {
+function getGuoColor(guo: string): { bg: string; text: string; border: string; icon: string; ring: string; accent: 'emerald' | 'sky' | 'rose' | 'amber' | 'ink' } {
   if (guo.includes('蜀')) {
-    return { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', icon: 'text-emerald-600' };
+    return { bg: 'bg-emerald-500/10', text: 'text-emerald-700', border: 'border-emerald-500/15', icon: 'text-emerald-600', ring: 'ring-emerald-500/15', accent: 'emerald' };
   }
   if (guo.includes('魏')) {
-    return { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', icon: 'text-blue-600' };
+    return { bg: 'bg-sky-500/10', text: 'text-sky-700', border: 'border-sky-500/15', icon: 'text-sky-600', ring: 'ring-sky-500/15', accent: 'sky' };
   }
   if (guo.includes('吴')) {
-    return { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', icon: 'text-red-600' };
+    return { bg: 'bg-rose-500/10', text: 'text-rose-700', border: 'border-rose-500/15', icon: 'text-rose-600', ring: 'ring-rose-500/15', accent: 'rose' };
   }
   if (guo.includes('汉') || guo.includes('晋') || guo.includes('董') || guo.includes('黄')) {
-    return { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', icon: 'text-amber-600' };
+    return { bg: 'bg-amber/10', text: 'text-amber-deep', border: 'border-amber/15', icon: 'text-amber-deep', ring: 'ring-amber/15', accent: 'amber' };
   }
-  return { bg: 'bg-gray-50', text: 'text-gray-700', border: 'border-gray-200', icon: 'text-gray-500' };
+  return { bg: 'bg-ink/8', text: 'text-ink', border: 'border-ink/10', icon: 'text-ink', ring: 'ring-ink/10', accent: 'ink' };
 }
 
 function getAvatarColor(guo: string): string {
-  if (guo.includes('蜀')) return 'bg-emerald-100 text-emerald-800 ring-emerald-200';
-  if (guo.includes('魏')) return 'bg-blue-100 text-blue-800 ring-blue-200';
-  if (guo.includes('吴')) return 'bg-red-100 text-red-800 ring-red-200';
-  if (guo.includes('汉') || guo.includes('晋') || guo.includes('董') || guo.includes('黄')) return 'bg-amber-100 text-amber-800 ring-amber-200';
-  return 'bg-gray-100 text-gray-800 ring-gray-200';
+  if (guo.includes('蜀')) return 'bg-emerald-500/10 text-emerald-700 ring-emerald-500/20';
+  if (guo.includes('魏')) return 'bg-sky-500/10 text-sky-700 ring-sky-500/20';
+  if (guo.includes('吴')) return 'bg-rose-500/10 text-rose-700 ring-rose-500/20';
+  if (guo.includes('汉') || guo.includes('晋') || guo.includes('董') || guo.includes('黄')) return 'bg-amber/10 text-amber-deep ring-amber/20';
+  return 'bg-ink/8 text-ink ring-ink/15';
 }
 
 export default function SanguoHeroes() {
@@ -77,62 +78,47 @@ export default function SanguoHeroes() {
     fetchHero(query);
   }, [fetchHero, query]);
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        handleSearch();
-      }
-    },
-    [handleSearch]
-  );
-
   const guoStyle = data ? getGuoColor(data.guo) : null;
   const avatarStyle = data ? getAvatarColor(data.guo) : '';
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-amber/20 flex items-center justify-center">
-            <Swords size={20} className="text-amber" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-ink font-serif">三国人物志</h1>
-            <p className="text-sm text-muted">煮酒论英雄，探寻三国风云人物生平</p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={Swords}
+        title="三国人物志"
+        description="煮酒论英雄，探寻三国风云人物生平"
+        accent="amber"
+      />
 
       {/* Search */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
-        <div className="flex items-center gap-3 bg-[#FAF8F5] rounded-xl px-4 py-3 border border-amber/10 focus-within:border-amber/40 focus-within:ring-2 focus-within:ring-amber/15 transition-all duration-300">
-          <Search size={18} className="text-muted/60 flex-shrink-0" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="输入三国人物姓名，如：关羽、曹操、诸葛亮..."
-            className="flex-1 bg-transparent outline-none text-sm text-charcoal placeholder:text-muted/50"
-          />
-          <button
+      <div className="bg-white rounded-2xl p-6 shadow-card border border-line-soft mb-6">
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <SearchInput
+              value={query}
+              onChange={setQuery}
+              onSubmit={handleSearch}
+              placeholder="输入三国人物姓名，如：关羽、曹操、诸葛亮..."
+              icon={Search}
+              size="md"
+            />
+          </div>
+          <ActionButton
             onClick={handleSearch}
             disabled={loading || !query.trim()}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 active:scale-95 ${
-              query.trim() && !loading
-                ? 'bg-ink text-white hover:bg-ink/90 shadow-sm'
-                : 'bg-gray-100 text-gray-300 cursor-not-allowed'
-            }`}
+            loading={loading}
+            variant="primary"
+            size="md"
+            icon={<Search size={15} />}
           >
-            {loading ? '查询中...' : '查询'}
-          </button>
+            查询
+          </ActionButton>
         </div>
 
         {/* Hot heroes */}
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-wrap items-center gap-2 px-1">
           <span className="text-xs text-muted/60 flex items-center gap-1 mr-1">
-            <Sparkles size={12} className="text-amber" />
+            <Sparkles size={12} className="text-amber-deep" />
             热门人物
           </span>
           {HOT_HEROES.map((hero) => (
@@ -142,7 +128,7 @@ export default function SanguoHeroes() {
                 setQuery(hero);
                 fetchHero(hero);
               }}
-              className="px-3 py-1 text-xs rounded-full bg-amber/8 text-ink hover:bg-amber hover:text-white transition-all duration-200 border border-amber/15 hover:border-amber active:scale-95"
+              className="px-3 py-1 text-xs rounded-full bg-amber/8 text-ink hover:bg-gradient-to-br hover:from-amber hover:to-amber-deep hover:text-white transition-all duration-200 border border-amber/15 hover:border-amber active:scale-95"
             >
               {hero}
             </button>
@@ -154,29 +140,20 @@ export default function SanguoHeroes() {
       {loading && (
         <div className="space-y-4">
           <LoadingCard />
-          <LoadingCard />
         </div>
       )}
 
       {/* Error */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-          <p className="text-red-600 mb-3">{error}</p>
-          <button
-            onClick={() => fetchHero(query)}
-            className="px-4 py-2 bg-ink text-white rounded-lg text-sm hover:bg-ink/90 transition-colors"
-          >
-            重新加载
-          </button>
-        </div>
-      )}
+      {error && <ErrorState message={error} onRetry={() => fetchHero(query)} />}
 
       {/* Hero Profile */}
       {data && guoStyle && (
-        <div className="space-y-6 animate-fade-in-up">
+        <div className="space-y-5 stagger-children">
           {/* Overview Card */}
-          <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100">
-            <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+          <div className="bg-white rounded-2xl p-6 md:p-8 shadow-card border border-line-soft relative overflow-hidden">
+            <div className={`absolute top-0 right-0 w-40 h-40 ${guoStyle.bg} rounded-full -translate-y-1/2 translate-x-1/2 opacity-50`} />
+
+            <div className="relative flex flex-col md:flex-row gap-6 md:gap-8 items-start">
               {/* Avatar */}
               <div className="flex-shrink-0 mx-auto md:mx-0">
                 <div
@@ -188,8 +165,8 @@ export default function SanguoHeroes() {
 
               {/* Info */}
               <div className="flex-1 w-full">
-                <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
-                  <h2 className="text-3xl font-bold text-ink font-serif text-center md:text-left">
+                <div className="flex flex-col md:flex-row md:items-baseline gap-3 mb-4">
+                  <h2 className="text-3xl font-bold text-ink font-serif text-center md:text-left tracking-wide">
                     {data.name}
                   </h2>
                   {data.zi && (
@@ -210,13 +187,13 @@ export default function SanguoHeroes() {
                     </span>
                   )}
                   {data.real && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border bg-gray-50 text-gray-600 border-gray-200">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border bg-ivory text-muted border-line-soft">
                       <BookOpen size={14} />
                       {data.real}
                     </span>
                   )}
                   {data.sex && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border bg-gray-50 text-gray-600 border-gray-200">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border bg-ivory text-muted border-line-soft">
                       <User size={14} />
                       {data.sex}
                     </span>
@@ -226,9 +203,9 @@ export default function SanguoHeroes() {
                 {/* Meta Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {data.age && (
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-[#FAF8F5] border border-amber/8">
-                      <div className="w-8 h-8 rounded-lg bg-amber/15 flex items-center justify-center flex-shrink-0">
-                        <Calendar size={15} className="text-amber" />
+                    <div className="flex items-center gap-3 p-3.5 rounded-xl bg-ivory border border-amber/8">
+                      <div className="w-9 h-9 rounded-lg bg-amber/15 flex items-center justify-center flex-shrink-0">
+                        <Calendar size={15} className="text-amber-deep" />
                       </div>
                       <div>
                         <p className="text-[11px] text-muted/70 uppercase tracking-wide">生卒年</p>
@@ -237,9 +214,9 @@ export default function SanguoHeroes() {
                     </div>
                   )}
                   {data.py && (
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-[#FAF8F5] border border-amber/8">
-                      <div className="w-8 h-8 rounded-lg bg-amber/15 flex items-center justify-center flex-shrink-0">
-                        <MapPin size={15} className="text-amber" />
+                    <div className="flex items-center gap-3 p-3.5 rounded-xl bg-ivory border border-amber/8">
+                      <div className="w-9 h-9 rounded-lg bg-amber/15 flex items-center justify-center flex-shrink-0">
+                        <MapPin size={15} className="text-amber-deep" />
                       </div>
                       <div>
                         <p className="text-[11px] text-muted/70 uppercase tracking-wide">拼音</p>
@@ -254,12 +231,12 @@ export default function SanguoHeroes() {
 
           {/* Biography */}
           {data.content && (
-            <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-3 mb-5">
+            <div className="bg-white rounded-2xl p-6 md:p-8 shadow-card border border-line-soft">
+              <div className="flex items-center gap-2.5 mb-5">
                 <div className="w-8 h-8 rounded-lg bg-amber/15 flex items-center justify-center">
-                  <BookOpen size={16} className="text-amber" />
+                  <BookOpen size={16} className="text-amber-deep" />
                 </div>
-                <h3 className="text-lg font-bold text-ink font-serif">人物生平</h3>
+                <h3 className="text-base font-semibold text-ink font-serif">人物生平</h3>
               </div>
 
               <div className="relative">
@@ -279,14 +256,12 @@ export default function SanguoHeroes() {
 
       {/* Empty state */}
       {!loading && !error && !data && (
-        <div className="text-center py-16 animate-fade-in-up">
-          <div className="w-20 h-20 rounded-3xl bg-amber/10 flex items-center justify-center mx-auto mb-5 border border-amber/15">
-            <Swords size={36} className="text-amber/60" />
-          </div>
-          <h3 className="text-lg font-semibold text-ink font-serif mb-2">探索三国人物</h3>
-          <p className="text-sm text-muted max-w-xs mx-auto leading-relaxed">
-            在上方搜索框输入人物姓名，或点击热门标签，了解三国英雄的传奇一生
-          </p>
+        <div className="bg-white rounded-2xl border border-line-soft shadow-card">
+          <EmptyState
+            icon={Swords}
+            title="探索三国人物"
+            description="在上方搜索框输入人物姓名，或点击热门标签，了解三国英雄的传奇一生"
+          />
         </div>
       )}
 

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   Search,
   ScrollText,
@@ -17,6 +17,7 @@ import {
 import type { PoetryData, PoetryItem } from '../types';
 import LoadingCard from '../components/LoadingCard';
 import ChatPanel from '../components/ChatPanel';
+import { PageHeader, ErrorState, EmptyState, SearchInput, ActionButton, SectionTitle } from '../components/UI';
 
 const API_BASE = 'https://cn.apihz.cn/api/zici/poetry.php?id=10017576&key=1356a3698c81abe43c2eacb627cb6c91';
 
@@ -101,13 +102,8 @@ export default function Poetry() {
     [fetchPoetry]
   );
 
-  const autoLoadRef = useRef(false);
-
   useEffect(() => {
-    if (!autoLoadRef.current) {
-      autoLoadRef.current = true;
-      requestAnimationFrame(() => fetchPoetry('李白', 1));
-    }
+    requestAnimationFrame(() => fetchPoetry('李白', 1));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -115,47 +111,40 @@ export default function Poetry() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-amber/20 flex items-center justify-center">
-            <ScrollText size={20} className="text-amber" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-ink font-serif">古诗文大全</h1>
-            <p className="text-sm text-muted">穿越千年，品味中华诗词之美</p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={ScrollText}
+        title="古诗文大全"
+        description="穿越千年，品味中华诗词之美"
+        accent="amber"
+      />
 
       {/* Search Area */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
+      <div className="bg-white rounded-2xl p-6 shadow-card border border-line-soft mb-8">
         <div className="flex gap-3">
-          <div className="flex-1 relative">
-            <Search
-              size={18}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-muted/50"
-            />
-            <input
-              type="text"
+          <div className="flex-1">
+            <SearchInput
               value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              onChange={setSearchInput}
+              onSubmit={handleSearch}
               placeholder="搜索诗人、诗名、诗句或标签，如：李白、春江花月夜..."
-              className="w-full pl-11 pr-4 py-3.5 bg-[#FAF8F5] rounded-xl border border-amber/10 text-charcoal placeholder:text-muted/50 focus:outline-none focus:border-amber/40 focus:ring-2 focus:ring-amber/15 transition-all"
+              icon={Search}
+              size="lg"
             />
           </div>
-          <button
+          <ActionButton
             onClick={handleSearch}
             disabled={loading || !searchInput.trim()}
-            className="px-6 py-3.5 bg-ink text-white rounded-xl hover:bg-ink/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-md hover:shadow-lg active:scale-95"
+            loading={loading}
+            variant="primary"
+            size="lg"
+            icon={<Search size={15} />}
           >
-            {loading ? '搜索中...' : '搜索'}
-          </button>
+            {loading ? '搜索中' : '搜索'}
+          </ActionButton>
         </div>
 
         {/* Hot Searches */}
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-wrap items-center gap-2 px-1">
           <span className="text-xs text-muted/60 flex items-center gap-1 mr-1">
             <Sparkles size={12} />
             热门搜索
@@ -166,10 +155,10 @@ export default function Poetry() {
               <button
                 key={item.label}
                 onClick={() => handleHotSearch(item.label)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all active:scale-95 ${
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all duration-200 active:scale-95 ${
                   query === item.label
-                    ? 'bg-amber text-ink shadow-sm'
-                    : 'bg-amber/8 text-muted hover:bg-amber/20 hover:text-ink'
+                    ? 'bg-gradient-to-br from-amber to-amber-deep text-ink shadow-sm'
+                    : 'bg-amber/8 text-muted hover:bg-amber/15 hover:text-amber-deep'
                 }`}
               >
                 <Icon size={12} />
@@ -184,33 +173,26 @@ export default function Poetry() {
       {loading && !data && <LoadingCard />}
 
       {/* Error */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center mb-6">
-          <p className="text-red-600 mb-3">{error}</p>
-          <button
-            onClick={() => fetchPoetry(query, page)}
-            className="px-4 py-2 bg-ink text-white rounded-lg text-sm hover:bg-ink/90 transition-colors"
-          >
-            重新加载
-          </button>
+      {error && !loading && (
+        <div className="mb-6">
+          <ErrorState message={error} onRetry={() => fetchPoetry(query, page)} />
         </div>
       )}
 
       {/* Results */}
       {data && data.data && (
-        <div className="space-y-6">
+        <div className="space-y-6 stagger-children">
           {/* Results Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Feather size={16} className="text-amber" />
-              <span className="text-sm text-muted">
-                “{query}” 的搜索结果 · 第 {data.page} 页
-              </span>
-            </div>
-            <span className="text-xs text-muted/50">
+          <SectionTitle
+            icon={Feather}
+            title={`"${query}" 的搜索结果`}
+            accent="amber"
+            count={`第 ${data.page} 页`}
+          >
+            <span className="text-xs text-muted/60">
               共 {data.data.length} 首
             </span>
-          </div>
+          </SectionTitle>
 
           {/* Poetry List */}
           <div className="grid gap-5">
@@ -226,11 +208,12 @@ export default function Poetry() {
 
           {/* Empty State */}
           {data.data.length === 0 && !loading && (
-            <div className="text-center py-16">
-              <div className="w-16 h-16 rounded-2xl bg-amber/10 flex items-center justify-center mx-auto mb-4">
-                <BookOpen size={28} className="text-amber/50" />
-              </div>
-              <p className="text-muted text-sm">未找到相关诗文，请尝试其他关键词</p>
+            <div className="bg-white rounded-2xl border border-line-soft shadow-card">
+              <EmptyState
+                icon={BookOpen}
+                title="未找到相关诗文"
+                description="请尝试其他关键词或更换搜索词"
+              />
             </div>
           )}
 
@@ -240,18 +223,18 @@ export default function Poetry() {
               <button
                 onClick={() => handlePageChange(page - 1)}
                 disabled={page <= 1 || loading}
-                className="flex items-center gap-1 px-4 py-2 rounded-xl bg-white border border-gray-100 text-sm text-charcoal hover:bg-amber/5 hover:border-amber/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
+                className="flex items-center gap-1 px-4 py-2 rounded-xl bg-white border border-line text-sm text-charcoal hover:bg-amber/5 hover:border-amber/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 active:scale-95 shadow-sm"
               >
                 <ChevronLeft size={16} />
                 上一页
               </button>
-              <span className="text-sm text-muted px-3 py-2 bg-white rounded-xl border border-gray-100 min-w-[80px] text-center">
+              <span className="text-sm text-charcoal px-4 py-2 bg-white rounded-xl border border-line-soft min-w-[90px] text-center font-medium shadow-sm">
                 第 {page} 页
               </span>
               <button
                 onClick={() => handlePageChange(page + 1)}
                 disabled={data.data.length < 5 || page >= 50 || loading}
-                className="flex items-center gap-1 px-4 py-2 rounded-xl bg-white border border-gray-100 text-sm text-charcoal hover:bg-amber/5 hover:border-amber/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
+                className="flex items-center gap-1 px-4 py-2 rounded-xl bg-white border border-line text-sm text-charcoal hover:bg-amber/5 hover:border-amber/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 active:scale-95 shadow-sm"
               >
                 下一页
                 <ChevronRight size={16} />
@@ -290,24 +273,24 @@ function PoetryCard({
   return (
     <div
       onClick={onSelect}
-      className={`bg-white rounded-2xl p-6 shadow-sm border transition-all cursor-pointer group active:scale-[0.99] ${
+      className={`bg-white rounded-2xl p-6 shadow-card border transition-all duration-300 cursor-pointer group active:scale-[0.99] ${
         isSelected
-          ? 'border-amber/40 ring-2 ring-amber/10 shadow-md'
-          : 'border-gray-100 hover:border-amber/25 hover:shadow-md'
+          ? 'border-amber/40 ring-2 ring-amber/15 shadow-card-hover'
+          : 'border-line-soft hover:border-amber/30 hover:shadow-card-hover'
       }`}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           {/* Title & Meta */}
           <div className="flex items-center gap-3 mb-3 flex-wrap">
-            <h3 className="text-lg font-bold text-ink font-serif group-hover:text-amber transition-colors">
+            <h3 className="text-lg font-bold text-ink font-serif group-hover:text-amber-deep transition-colors">
               {poem.name}
             </h3>
-            <span className="inline-flex items-center gap-1 text-xs text-muted bg-amber/8 px-2 py-1 rounded-md">
+            <span className="inline-flex items-center gap-1 text-xs text-amber-deep bg-amber/10 px-2 py-1 rounded-md font-medium">
               <User size={11} />
               {poem.author}
             </span>
-            <span className="inline-flex items-center gap-1 text-xs text-muted bg-ivory px-2 py-1 rounded-md border border-gray-100">
+            <span className="inline-flex items-center gap-1 text-xs text-muted bg-ivory px-2 py-1 rounded-md border border-line-soft">
               <Clock size={11} />
               {poem.dynasty}
             </span>
@@ -337,7 +320,7 @@ function PoetryCard({
 
         {/* View Button */}
         <div className="flex-shrink-0">
-          <div className="w-10 h-10 rounded-xl bg-amber/10 flex items-center justify-center group-hover:bg-amber group-hover:text-white text-amber transition-all">
+          <div className="w-10 h-10 rounded-xl bg-amber/10 flex items-center justify-center group-hover:bg-gradient-to-br group-hover:from-amber group-hover:to-amber-deep group-hover:text-white text-amber-deep transition-all duration-300">
             <Eye size={18} />
           </div>
         </div>
@@ -359,10 +342,10 @@ function PoetryDetailModal({ poem, onClose }: { poem: PoetryItem; onClose: () =>
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 sm:p-6 md:p-10 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 sm:p-6 md:p-10 overflow-y-auto animate-fade-in">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-ink/30 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-ink/40 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
@@ -371,16 +354,16 @@ function PoetryDetailModal({ poem, onClose }: { poem: PoetryItem; onClose: () =>
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-xl bg-white/80 backdrop-blur text-muted hover:text-ink hover:bg-gray-100 transition-all"
+          className="absolute top-4 right-4 z-10 p-2 rounded-xl bg-white/80 backdrop-blur text-muted hover:text-ink hover:bg-ivory transition-all active:scale-95"
         >
           <X size={20} />
         </button>
 
         <div className="max-h-[85vh] overflow-y-auto scrollbar-thin">
           {/* Hero Section */}
-          <div className="relative bg-gradient-to-br from-ink via-[#243D5F] to-[#2A4A73] text-white px-8 pt-10 pb-8">
+          <div className="relative bg-gradient-to-br from-ink via-ink-light to-ink-deep text-white px-8 pt-10 pb-8">
             {/* Decorative Elements */}
-            <div className="absolute top-0 right-0 w-48 h-48 bg-amber/10 rounded-full -translate-y-1/2 translate-x-1/4" />
+            <div className="absolute top-0 right-0 w-48 h-48 bg-amber/10 rounded-full -translate-y-1/2 translate-x-1/4 blur-2xl" />
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
 
             <div className="relative">
@@ -424,11 +407,12 @@ function PoetryDetailModal({ poem, onClose }: { poem: PoetryItem; onClose: () =>
             <section>
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-amber/15 flex items-center justify-center">
-                  <ScrollText size={16} className="text-amber" />
+                  <ScrollText size={16} className="text-amber-deep" />
                 </div>
-                <h3 className="text-base font-medium text-ink font-serif">原文</h3>
+                <h3 className="text-base font-semibold text-ink font-serif">原文</h3>
               </div>
-              <div className="bg-[#FAF8F5] rounded-2xl p-6 sm:p-8 border border-amber/10">
+              <div className="bg-ivory rounded-2xl p-6 sm:p-8 border border-amber/10 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-amber/30 via-amber/15 to-transparent" />
                 {lines.map((line, i) => (
                   <p
                     key={i}
@@ -524,11 +508,11 @@ function InfoSection({
     <section className="animate-fade-in-up">
       <div className="flex items-center gap-2 mb-4">
         <div className="w-8 h-8 rounded-lg bg-amber/15 flex items-center justify-center">
-          <Icon size={16} className="text-amber" />
+          <Icon size={16} className="text-amber-deep" />
         </div>
-        <h3 className="text-base font-medium text-ink font-serif">{title}</h3>
+        <h3 className="text-base font-semibold text-ink font-serif">{title}</h3>
       </div>
-      <div className="bg-white rounded-2xl p-6 border border-gray-100">
+      <div className="bg-white rounded-2xl p-6 border border-line-soft shadow-sm">
         {hasHtml ? (
           <div
             className="text-sm text-charcoal leading-relaxed poetry-html"

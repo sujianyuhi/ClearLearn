@@ -3,6 +3,7 @@ import { RefreshCw, Quote, Lightbulb, BookMarked } from 'lucide-react';
 import type { ProverbData } from '../types';
 import LoadingCard from '../components/LoadingCard';
 import ChatPanel from '../components/ChatPanel';
+import { PageHeader, ErrorState, OrnamentDivider, ActionButton } from '../components/UI';
 
 export default function Proverbs() {
   const [data, setData] = useState<ProverbData | null>(null);
@@ -39,47 +40,45 @@ export default function Proverbs() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-amber/20 flex items-center justify-center">
-            <BookMarked size={20} className="text-amber" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-ink font-serif">随机谚语</h1>
-            <p className="text-sm text-muted">品味中华传统智慧，感悟人生哲理</p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={BookMarked}
+        title="随机谚语"
+        description="品味中华传统智慧，感悟人生哲理"
+        accent="amber"
+      >
+        <ActionButton
+          onClick={fetchProverb}
+          loading={loading}
+          variant="secondary"
+          size="md"
+          icon={<RefreshCw size={15} className={loading ? 'animate-spin' : ''} />}
+        >
+          换一条
+        </ActionButton>
+      </PageHeader>
 
       {/* Content */}
       {loading && !data && <LoadingCard />}
 
-      {error && !data && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-          <p className="text-red-600 mb-3">{error}</p>
-          <button
-            onClick={fetchProverb}
-            className="px-4 py-2 bg-ink text-white rounded-lg text-sm hover:bg-ink/90 transition-colors"
-          >
-            重新加载
-          </button>
-        </div>
-      )}
+      {error && !data && <ErrorState message={error} onRetry={fetchProverb} />}
 
       {data && (
-        <div key={data.saying} className="space-y-6 animate-fade-in-up">
+        <div key={data.saying} className="space-y-5 stagger-children">
           {/* Main Proverb Card */}
-          <div className="relative bg-white rounded-2xl p-8 md:p-12 shadow-sm border border-gray-100 overflow-hidden">
+          <div className="relative bg-white rounded-2xl p-8 md:p-12 shadow-card border border-line-soft overflow-hidden corner-accent group/card">
             {/* Decorative Background Pattern */}
-            <div className="absolute top-0 right-0 w-40 h-40 bg-amber/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-ink/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+            <div className="absolute top-0 right-0 w-48 h-48 bg-amber/5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover/card:bg-amber/8 transition-colors duration-700" />
+            <div className="absolute bottom-0 left-0 w-36 h-36 bg-ink/5 rounded-full translate-y-1/2 -translate-x-1/4 group-hover/card:bg-ink/8 transition-colors duration-700" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-amber/[0.02] rounded-full blur-2xl opacity-0 group-hover/card:opacity-100 transition-opacity duration-1000" />
 
             <div className="relative">
               {/* Top Quote Icon */}
               <div className="flex justify-center mb-6">
-                <div className="w-14 h-14 rounded-full bg-amber/15 flex items-center justify-center">
-                  <Quote size={28} className="text-amber" />
+                <div className="relative group/icon">
+                  <div className="absolute inset-0 bg-amber/30 rounded-full blur-xl scale-150 group-hover/icon:bg-amber/40 group-hover/icon:scale-[1.8] transition-all duration-700" />
+                  <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-amber/20 to-amber/5 flex items-center justify-center border border-amber/20 group-hover/icon:border-amber/40 group-hover/icon:shadow-glow-amber transition-all duration-500">
+                    <Quote size={28} className="text-amber-deep group-hover/icon:scale-110 transition-transform duration-500" />
+                  </div>
                 </div>
               </div>
 
@@ -91,17 +90,15 @@ export default function Proverbs() {
               </div>
 
               {/* Divider */}
-              <div className="flex items-center justify-center gap-4 mb-8">
-                <div className="h-px w-12 bg-amber/30" />
-                <div className="w-2 h-2 rounded-full bg-amber/50" />
-                <div className="h-px w-12 bg-amber/30" />
-              </div>
+              <OrnamentDivider className="my-6" />
 
               {/* Meaning Card */}
-              <div className="bg-ivory rounded-xl p-6 md:p-8">
-                <div className="flex items-center gap-2 mb-4">
-                  <Lightbulb size={18} className="text-amber" />
-                  <h3 className="text-base font-medium text-ink font-serif">寓意解读</h3>
+              <div className="bg-ivory rounded-xl p-6 md:p-8 border border-amber/8 hover:border-amber/15 hover:bg-white transition-all duration-500 group/meaning">
+                <div className="flex items-center gap-2.5 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-amber/15 flex items-center justify-center group-hover/meaning:bg-amber/25 transition-colors duration-300">
+                    <Lightbulb size={16} className="text-amber-deep" />
+                  </div>
+                  <h3 className="text-base font-semibold text-ink font-serif">寓意解读</h3>
                 </div>
                 <p className="text-charcoal text-lg leading-relaxed">
                   {data.content}
@@ -110,26 +107,27 @@ export default function Proverbs() {
 
               {/* Action Bar */}
               <div className="flex justify-center mt-8">
-                <button
+                <ActionButton
                   onClick={fetchProverb}
-                  disabled={loading}
-                  className="flex items-center gap-2 px-6 py-3 bg-ink text-white rounded-xl hover:bg-ink/90 transition-all duration-200 text-sm shadow-md hover:shadow-lg active:scale-95 disabled:opacity-60"
+                  loading={loading}
+                  variant="primary"
+                  size="md"
+                  icon={<RefreshCw size={15} className={loading ? 'animate-spin' : ''} />}
                 >
-                  <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-                  <span>换一条谚语</span>
-                </button>
+                  换一条谚语
+                </ActionButton>
               </div>
             </div>
           </div>
 
           {/* Cultural Note */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="bg-white rounded-2xl p-6 shadow-card border border-line-soft">
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-xl bg-amber/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <BookMarked size={18} className="text-amber" />
+                <BookMarked size={18} className="text-amber-deep" />
               </div>
               <div>
-                <h3 className="text-base font-medium text-ink mb-2 font-serif">关于谚语</h3>
+                <h3 className="text-base font-semibold text-ink mb-2 font-serif">关于谚语</h3>
                 <p className="text-muted text-sm leading-relaxed">
                   谚语是民间集体创造、广为流传、言简意赅并较为定性的艺术语句，是民众的丰富智慧和普遍经验的规律性总结。
                   中华谚语博大精深，蕴含着千百年来劳动人民的生活经验和人生智慧。

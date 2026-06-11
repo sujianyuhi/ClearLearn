@@ -4,6 +4,7 @@ import { useApi } from '../hooks/useApi';
 import type { DrivingQuestionData } from '../types';
 import LoadingCard from '../components/LoadingCard';
 import ChatPanel from '../components/ChatPanel';
+import { PageHeader, ErrorState, ActionButton } from '../components/UI';
 
 export default function DrivingTest() {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -50,57 +51,44 @@ export default function DrivingTest() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-amber/20 flex items-center justify-center">
-            <Car size={20} className="text-amber" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-ink font-serif">驾考练习</h1>
-            <p className="text-sm text-muted">科目一/四模拟题，助你轻松通过理论考试</p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={Car}
+        title="驾考练习"
+        description="科目一/四模拟题，助你轻松通过理论考试"
+        accent="amber"
+      >
+        <ActionButton
+          onClick={handleNext}
+          loading={loading}
+          variant="secondary"
+          size="md"
+          icon={<RefreshCw size={15} className={loading ? 'animate-spin' : ''} />}
+        >
+          下一题
+        </ActionButton>
+      </PageHeader>
 
       {/* Content */}
       {loading && <LoadingCard />}
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-          <p className="text-red-600 mb-3">{error}</p>
-          <button
-            onClick={refetch}
-            className="px-4 py-2 bg-ink text-white rounded-lg text-sm hover:bg-ink/90 transition-colors"
-          >
-            重新加载
-          </button>
-        </div>
-      )}
+      {error && <ErrorState message={error} onRetry={refetch} />}
 
       {data && isQuestionMode(data) && (
-        <div className="space-y-6">
+        <div className="space-y-5 stagger-children">
           {/* Question Card */}
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <div className="bg-white rounded-2xl p-6 md:p-8 shadow-card border border-line-soft">
             {/* Question Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="px-3 py-1 bg-ink/10 text-ink text-xs font-medium rounded-full">
                   {data.type || '科目一'}
                 </span>
                 {data.chapter && (
-                  <span className="px-3 py-1 bg-amber/10 text-amber text-xs font-medium rounded-full">
+                  <span className="px-3 py-1 bg-amber/15 text-amber-deep text-xs font-medium rounded-full">
                     {data.chapter}
                   </span>
                 )}
               </div>
-              <button
-                onClick={handleNext}
-                className="flex items-center gap-2 px-4 py-2 bg-ivory text-ink rounded-lg hover:bg-amber/20 transition-colors text-sm"
-              >
-                <RefreshCw size={16} />
-                <span>下一题</span>
-              </button>
             </div>
 
             {/* Question Image */}
@@ -109,37 +97,37 @@ export default function DrivingTest() {
                 <img
                   src={data.pic}
                   alt="题目图片"
-                  className="max-w-full h-auto rounded-xl border border-gray-100"
+                  className="max-w-full h-auto rounded-xl border border-line-soft shadow-sm"
                   style={{ maxHeight: '300px' }}
                 />
               </div>
             )}
 
             {/* Question */}
-            <h2 className="text-xl font-medium text-charcoal mb-6 leading-relaxed">
+            <h2 className="text-xl font-semibold text-charcoal mb-6 leading-relaxed font-serif">
               {data.question}
             </h2>
 
             {/* Options */}
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {getOptions(data).map((option, index) => {
                 const isSelected = selectedOption === index;
                 const answerIndex = getAnswerIndex(data.answer);
                 const isCorrect = index === answerIndex;
                 const showResult = showAnswer;
 
-                let buttonClass = 'w-full text-left px-5 py-4 rounded-xl border-2 transition-all duration-200 ';
+                let buttonClass = 'w-full text-left px-5 py-4 rounded-xl border-2 transition-all duration-300 ';
 
                 if (showResult) {
                   if (isCorrect) {
-                    buttonClass += 'border-green-500 bg-green-50 text-green-800';
+                    buttonClass += 'border-emerald-500 bg-emerald-500/8 text-emerald-800';
                   } else if (isSelected && !isCorrect) {
-                    buttonClass += 'border-red-400 bg-red-50 text-red-700';
+                    buttonClass += 'border-rose-500 bg-rose-500/8 text-rose-700';
                   } else {
-                    buttonClass += 'border-gray-100 bg-white text-charcoal opacity-60';
+                    buttonClass += 'border-line-soft bg-white text-charcoal opacity-60';
                   }
                 } else {
-                  buttonClass += 'border-gray-100 bg-white text-charcoal hover:border-amber hover:bg-amber/5 cursor-pointer';
+                  buttonClass += 'border-line-soft bg-white text-charcoal hover:border-amber hover:bg-amber/5 cursor-pointer active:scale-[0.99]';
                 }
 
                 return (
@@ -150,13 +138,13 @@ export default function DrivingTest() {
                     className={buttonClass}
                   >
                     <div className="flex items-center gap-4">
-                      <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0 ${
+                      <span className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0 transition-all duration-200 ${
                         showResult
                           ? isCorrect
-                            ? 'bg-green-500 text-white'
+                            ? 'bg-emerald-500 text-white shadow-md'
                             : isSelected
-                            ? 'bg-red-400 text-white'
-                            : 'bg-gray-100 text-gray-400'
+                            ? 'bg-rose-500 text-white shadow-md'
+                            : 'bg-ivory text-muted/50'
                           : 'bg-ivory text-ink'
                       }`}>
                         {showResult && isCorrect ? (
@@ -167,7 +155,7 @@ export default function DrivingTest() {
                           getOptionLabel(index)
                         )}
                       </span>
-                      <span className="flex-1">{option.replace(/^[A-D]、\s*/, '')}</span>
+                      <span className="flex-1 leading-relaxed">{option.replace(/^[A-D]、\s*/, '')}</span>
                     </div>
                   </button>
                 );
@@ -176,25 +164,25 @@ export default function DrivingTest() {
 
             {/* Result */}
             {showAnswer && (
-              <div className={`mt-6 p-5 rounded-xl ${
+              <div className={`mt-6 p-5 rounded-xl border ${
                 selectedOption === getAnswerIndex(data.answer)
-                  ? 'bg-green-50 border border-green-200'
-                  : 'bg-red-50 border border-red-200'
-              }`}>
-                <div className="flex items-center gap-2 mb-2">
+                  ? 'bg-emerald-500/8 border-emerald-500/20'
+                  : 'bg-rose-500/8 border-rose-500/20'
+              } animate-fade-in-up`}>
+                <div className="flex items-center gap-2.5 mb-2">
                   {selectedOption === getAnswerIndex(data.answer) ? (
-                    <CheckCircle2 size={20} className="text-green-600" />
+                    <CheckCircle2 size={20} className="text-emerald-600" />
                   ) : (
-                    <XCircle size={20} className="text-red-500" />
+                    <XCircle size={20} className="text-rose-500" />
                   )}
-                  <span className={`font-medium ${
-                    selectedOption === getAnswerIndex(data.answer) ? 'text-green-700' : 'text-red-600'
+                  <span className={`font-semibold ${
+                    selectedOption === getAnswerIndex(data.answer) ? 'text-emerald-700' : 'text-rose-600'
                   }`}>
                     {selectedOption === getAnswerIndex(data.answer) ? '回答正确！' : '回答错误'}
                   </span>
                 </div>
                 <p className="text-sm text-charcoal">
-                  正确答案：<span className="font-bold text-green-700">{data.answer}</span>
+                  正确答案：<span className="font-bold text-emerald-700 font-mono">{data.answer}</span>
                 </p>
               </div>
             )}
@@ -202,10 +190,12 @@ export default function DrivingTest() {
 
           {/* Explanation */}
           {showAnswer && data.explain && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-2 mb-3">
-                <Lightbulb size={18} className="text-amber" />
-                <h3 className="text-lg font-medium text-ink font-serif">题目解析</h3>
+            <div className="bg-white rounded-2xl p-6 shadow-card border border-line-soft animate-fade-in-up">
+              <div className="flex items-center gap-2.5 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-amber/15 flex items-center justify-center">
+                  <Lightbulb size={16} className="text-amber-deep" />
+                </div>
+                <h3 className="text-base font-semibold text-ink font-serif">题目解析</h3>
               </div>
               <p className="text-charcoal leading-relaxed">{data.explain}</p>
             </div>
@@ -214,27 +204,18 @@ export default function DrivingTest() {
       )}
 
       {data && !isQuestionMode(data) && (
-        <div className="space-y-6">
+        <div className="space-y-5 stagger-children">
           {/* Knowledge Card */}
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-amber/10 text-amber text-xs font-medium rounded-full">
-                  知识点
+          <div className="bg-white rounded-2xl p-6 md:p-8 shadow-card border border-line-soft">
+            <div className="flex items-center gap-2 mb-6 flex-wrap">
+              <span className="px-3 py-1 bg-amber/15 text-amber-deep text-xs font-medium rounded-full">
+                知识点
+              </span>
+              {data.chapter && (
+                <span className="px-3 py-1 bg-ink/10 text-ink text-xs font-medium rounded-full">
+                  {data.chapter}
                 </span>
-                {data.chapter && (
-                  <span className="px-3 py-1 bg-ink/10 text-ink text-xs font-medium rounded-full">
-                    {data.chapter}
-                  </span>
-                )}
-              </div>
-              <button
-                onClick={handleNext}
-                className="flex items-center gap-2 px-4 py-2 bg-ivory text-ink rounded-lg hover:bg-amber/20 transition-colors text-sm"
-              >
-                <RefreshCw size={16} />
-                <span>下一题</span>
-              </button>
+              )}
             </div>
 
             {/* Question Image */}
@@ -243,22 +224,22 @@ export default function DrivingTest() {
                 <img
                   src={data.pic}
                   alt="题目图片"
-                  className="max-w-full h-auto rounded-xl border border-gray-100"
+                  className="max-w-full h-auto rounded-xl border border-line-soft shadow-sm"
                   style={{ maxHeight: '300px' }}
                 />
               </div>
             )}
 
-            <div className="bg-ivory rounded-xl p-6 border border-gray-100">
-              <p className="text-lg text-charcoal leading-relaxed font-medium">
+            <div className="bg-ivory rounded-xl p-6 border border-amber/10">
+              <p className="text-lg text-charcoal leading-relaxed font-medium font-serif">
                 {data.question || data.explain}
               </p>
             </div>
 
             {data.explain && data.question && (
-              <div className="mt-4 p-4 rounded-xl bg-white border border-gray-100">
+              <div className="mt-4 p-4 rounded-xl bg-white border border-line-soft">
                 <div className="flex items-center gap-2 mb-2">
-                  <Lightbulb size={16} className="text-amber" />
+                  <Lightbulb size={16} className="text-amber-deep" />
                   <span className="text-sm font-medium text-ink">补充说明</span>
                 </div>
                 <p className="text-sm text-charcoal leading-relaxed">{data.explain}</p>

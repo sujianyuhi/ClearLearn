@@ -20,123 +20,74 @@ import {
   History,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import WeatherWidget from './WeatherWidget';
 
 const categories = [
   {
     title: '语文学习',
     icon: BookMarked,
+    accent: 'amber' as const,
     items: [
-      {
-        path: '/proverbs',
-        label: '随机谚语',
-        icon: Quote,
-        description: '品味中华传统智慧',
-      },
-      {
-        path: '/idiom',
-        label: '成语字典',
-        icon: BookMarked,
-        description: '查成语释义、出处与用法',
-      },
-      {
-        path: '/idioms',
-        label: '随机成语',
-        icon: Sparkles,
-        description: '探寻中华成语之美',
-      },
-      {
-        path: '/poetry',
-        label: '古诗文大全',
-        icon: ScrollText,
-        description: '探寻千年诗词之美',
-      },
+      { path: '/proverbs', label: '随机谚语', icon: Quote, description: '品味中华传统智慧' },
+      { path: '/idiom', label: '成语字典', icon: BookMarked, description: '查成语释义、出处与用法' },
+      { path: '/idioms', label: '随机成语', icon: Sparkles, description: '探寻中华成语之美' },
+      { path: '/poetry', label: '古诗文大全', icon: ScrollText, description: '探寻千年诗词之美' },
     ],
   },
   {
     title: '数学学习',
     icon: Calculator,
+    accent: 'teal' as const,
     items: [
-      {
-        path: '/math-quiz',
-        label: '小学数学挑战',
-        icon: Calculator,
-        description: '每日一题，锻炼思维',
-      },
+      { path: '/math-quiz', label: '小学数学挑战', icon: Calculator, description: '每日一题，锻炼思维' },
     ],
   },
   {
     title: '英语学习',
     icon: Languages,
+    accent: 'sky' as const,
     items: [
-      {
-        path: '/daily-english',
-        label: '每日英语',
-        icon: BookOpen,
-        description: '每日一词，积少成多',
-      },
-      {
-        path: '/word-detail',
-        label: '单词详解',
-        icon: Search,
-        description: '深度解析词汇用法',
-      },
+      { path: '/daily-english', label: '每日英语', icon: BookOpen, description: '每日一词，积少成多' },
+      { path: '/word-detail', label: '单词详解', icon: Search, description: '深度解析词汇用法' },
     ],
   },
   {
     title: '历史学习',
     icon: History,
+    accent: 'rose' as const,
     items: [
-      {
-        path: '/today-history',
-        label: '历史上的今天',
-        icon: CalendarDays,
-        description: '以史为鉴，可知兴替',
-      },
-      {
-        path: '/sanguo-heroes',
-        label: '三国人物志',
-        icon: Swords,
-        description: '煮酒论英雄，探寻风云人物',
-      },
+      { path: '/today-history', label: '历史上的今天', icon: CalendarDays, description: '以史为鉴，可知兴替' },
+      { path: '/sanguo-heroes', label: '三国人物志', icon: Swords, description: '煮酒论英雄，探寻风云人物' },
     ],
   },
   {
     title: '化学学习',
     icon: FlaskConical,
+    accent: 'emerald' as const,
     items: [
-      {
-        path: '/chemical-element',
-        label: '元素周期表',
-        icon: Atom,
-        description: '探索化学元素的奥秘',
-      },
-      {
-        path: '/equation-balancer',
-        label: '方程式配平',
-        icon: FlaskConical,
-        description: '智能配平化学方程式',
-      },
+      { path: '/chemical-element', label: '元素周期表', icon: Atom, description: '探索化学元素的奥秘' },
+      { path: '/equation-balancer', label: '方程式配平', icon: FlaskConical, description: '智能配平化学方程式' },
     ],
   },
   {
     title: '实用工具',
     icon: GraduationCap,
+    accent: 'purple' as const,
     items: [
-      {
-        path: '/translator',
-        label: '聚合翻译',
-        icon: Languages,
-        description: '支持 13 种语言互译',
-      },
-      {
-        path: '/driving-test',
-        label: '驾考练习',
-        icon: Car,
-        description: '科目一/四模拟题',
-      },
+      { path: '/translator', label: '聚合翻译', icon: Languages, description: '支持 13 种语言互译' },
+      { path: '/driving-test', label: '驾考练习', icon: Car, description: '科目一/四模拟题' },
     ],
   },
 ];
+
+const accentColors = {
+  amber: { bg: 'bg-amber/15', text: 'text-amber', ring: 'ring-amber/20', activeBg: 'bg-amber/12' },
+  teal: { bg: 'bg-teal/15', text: 'text-teal', ring: 'ring-teal/20', activeBg: 'bg-teal/12' },
+  sky: { bg: 'bg-sky-400/15', text: 'text-sky-400', ring: 'ring-sky-400/20', activeBg: 'bg-sky-400/12' },
+  rose: { bg: 'bg-rose-400/15', text: 'text-rose-400', ring: 'ring-rose-400/20', activeBg: 'bg-rose-400/12' },
+  emerald: { bg: 'bg-emerald-400/15', text: 'text-emerald-400', ring: 'ring-emerald-400/20', activeBg: 'bg-emerald-400/12' },
+  purple: { bg: 'bg-purple-400/15', text: 'text-purple-400', ring: 'ring-purple-400/20', activeBg: 'bg-purple-400/12' },
+};
 
 export default function Sidebar() {
   const location = useLocation();
@@ -145,25 +96,19 @@ export default function Sidebar() {
   const getInitialExpanded = () => {
     const initial: Record<string, boolean> = {};
     categories.forEach((cat) => {
-      initial[cat.title] = cat.items.some(
-        (item) => location.pathname === item.path
-      );
+      initial[cat.title] = cat.items.some((item) => location.pathname === item.path);
     });
     return initial;
   };
 
-  const [expanded, setExpanded] = useState<Record<string, boolean>>(
-    getInitialExpanded
-  );
+  const [expanded, setExpanded] = useState<Record<string, boolean>>(getInitialExpanded);
 
   useEffect(() => {
     setExpanded((prev) => {
       const next = { ...prev };
       let changed = false;
       categories.forEach((cat) => {
-        const shouldExpand = cat.items.some(
-          (item) => location.pathname === item.path
-        );
+        const shouldExpand = cat.items.some((item) => location.pathname === item.path);
         if (shouldExpand && !next[cat.title]) {
           next[cat.title] = true;
           changed = true;
@@ -182,36 +127,46 @@ export default function Sidebar() {
       {/* Mobile Toggle */}
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-ink text-ivory shadow-lg md:hidden"
+        className="fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-ink text-amber shadow-xl md:hidden backdrop-blur-sm border border-white/10 hover:scale-105 active:scale-95 transition-all duration-300"
+        aria-label={mobileOpen ? '关闭菜单' : '打开菜单'}
       >
-        {mobileOpen ? <X size={20} /> : <ChevronRight size={20} />}
+        {mobileOpen ? <X size={18} /> : <ChevronRight size={18} />}
       </button>
 
       {/* Overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-30 md:hidden"
+          className="fixed inset-0 bg-ink/40 backdrop-blur-sm z-30 md:hidden animate-fade-in"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-full bg-ink text-ivory z-40 transition-transform duration-300 ease-in-out
-          w-64 md:translate-x-0 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed left-0 top-0 h-full bg-ink text-ivory z-40 transition-transform duration-500 ease-out-soft w-64 md:translate-x-0 ${
+          mobileOpen ? 'translate-x-0 shadow-panel' : '-translate-x-full'
+        }`}
       >
-        <div className="flex flex-col h-full">
+        {/* Decorative gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-ink via-ink to-ink-deep pointer-events-none" />
+        <div className="absolute top-0 right-0 w-40 h-40 bg-amber/6 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDuration: '8s' }} />
+        <div className="absolute bottom-1/3 left-0 w-28 h-28 bg-teal/6 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+
+        <div className="relative flex flex-col h-full">
           {/* Logo */}
-          <div className="p-6 border-b border-white/10">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-amber flex items-center justify-center">
-                <BookOpen className="text-ink" size={22} />
+          <div className="p-5 border-b border-white/8">
+            <div className="flex items-center gap-3 group cursor-default">
+              <div className="relative">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber to-amber-deep flex items-center justify-center shadow-lg shadow-amber/20 ring-1 ring-white/10 group-hover:shadow-xl group-hover:shadow-amber/30 transition-all duration-500 group-hover:scale-105">
+                  <BookOpen className="text-ink" size={20} strokeWidth={2.2} />
+                </div>
+                <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-teal rounded-full border-2 border-ink animate-pulse-soft" />
               </div>
-              <div>
-                <h1 className="text-lg font-bold text-white font-serif">
+              <div className="leading-tight">
+                <h1 className="text-lg font-bold text-white font-serif tracking-wide group-hover:text-amber transition-colors duration-300">
                   ClearLearn
                 </h1>
-                <p className="text-xs text-white/60">综合学习智能体</p>
+                <p className="text-[11px] text-white/50 mt-0.5">综合学习智能体</p>
               </div>
             </div>
           </div>
@@ -221,79 +176,93 @@ export default function Sidebar() {
             {categories.map((cat) => {
               const CatIcon = cat.icon;
               const isExpanded = expanded[cat.title];
-              const hasActiveChild = cat.items.some(
-                (item) => location.pathname === item.path
-              );
+              const hasActiveChild = cat.items.some((item) => location.pathname === item.path);
+              const a = accentColors[cat.accent];
 
               return (
                 <div key={cat.title} className="mb-1">
                   <button
                     onClick={() => toggleCategory(cat.title)}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors duration-200 ${
+                    className={`group w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-300 ${
                       hasActiveChild
-                        ? 'text-amber'
-                        : 'text-white/80 hover:bg-white/10 hover:text-white'
+                        ? `${a.bg} ${a.text}`
+                        : 'text-white/65 hover:bg-white/6 hover:text-white'
                     }`}
                   >
-                    <CatIcon size={18} />
-                    <span className="text-sm font-medium flex-1 text-left">
+                    <CatIcon
+                      size={17}
+                      className={`transition-all duration-300 ${hasActiveChild ? '' : 'group-hover:scale-110 group-hover:text-white'}`}
+                    />
+                    <span className="text-sm font-medium flex-1 text-left tracking-wide">
                       {cat.title}
                     </span>
+                    {hasActiveChild && (
+                      <span className={`w-1.5 h-1.5 rounded-full ${a.text.replace('text-', 'bg-')} opacity-70 animate-pulse-soft`} />
+                    )}
                     <ChevronDown
-                      size={16}
-                      className={`transition-transform duration-200 ${
-                        isExpanded ? 'rotate-180' : ''
-                      }`}
+                      size={13}
+                      className={`transition-all duration-300 ${isExpanded ? 'rotate-180' : 'opacity-40 group-hover:opacity-70'}`}
                     />
                   </button>
 
-                  {isExpanded && (
-                    <div className="mt-1 space-y-1 pl-2">
-                      {cat.items.map((item) => {
-                        const Icon = item.icon;
-                        return (
-                          <NavLink
-                            key={item.path}
-                            to={item.path}
-                            onClick={() => setMobileOpen(false)}
-                            className={({ isActive }) =>
-                              `flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 ${
-                                isActive
-                                  ? 'bg-amber text-ink shadow-md'
-                                  : 'text-white/70 hover:bg-white/10 hover:text-white'
-                              }`
-                            }
-                          >
-                            <Icon size={18} />
-                            <div className="flex-1">
-                              <div className="text-sm font-medium">
-                                {item.label}
+                  <div
+                    className={`grid transition-all duration-300 ease-out-soft ${
+                      isExpanded ? 'grid-rows-[1fr] opacity-100 mt-1' : 'grid-rows-[0fr] opacity-0'
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="mb-2 space-y-0.5 pl-3 border-l border-white/8 ml-5">
+                        {cat.items.map((item) => {
+                          const Icon = item.icon;
+                          return (
+                            <NavLink
+                              key={item.path}
+                              to={item.path}
+                              onClick={() => setMobileOpen(false)}
+                              className={({ isActive }) =>
+                                `group flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all duration-300 ${
+                                  isActive
+                                    ? 'bg-gradient-to-r from-amber to-amber-deep text-ink shadow-md shadow-amber/20 font-semibold scale-[1.02]'
+                                    : 'text-white/60 hover:bg-white/6 hover:text-white hover:translate-x-1'
+                                }`
+                              }
+                            >
+                              <Icon size={14} className="flex-shrink-0 transition-transform duration-300 group-hover:scale-110" />
+                              <div className="flex-1 min-w-0">
+                                <div className="text-[13px] leading-tight">{item.label}</div>
+                                <div
+                                  className={`text-[10.5px] mt-0.5 leading-snug truncate transition-colors ${
+                                    location.pathname === item.path
+                                      ? 'text-ink/50'
+                                      : 'text-white/30 group-hover:text-white/40'
+                                  }`}
+                                >
+                                  {item.description}
+                                </div>
                               </div>
-                              <div
-                                className={`text-xs ${
-                                  location.pathname === item.path
-                                    ? 'text-ink/60'
-                                    : 'text-white/40'
-                                }`}
-                              >
-                                {item.description}
-                              </div>
-                            </div>
-                          </NavLink>
-                        );
-                      })}
+                            </NavLink>
+                          );
+                        })}
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })}
           </nav>
 
+          {/* Weather */}
+          <WeatherWidget />
+
           {/* Footer */}
-          <div className="p-4 border-t border-white/10">
-            <p className="text-xs text-white/40 text-center">
-              ClearLearn v1.0 · AI 由 DeepSeek 驱动
-            </p>
+          <div className="px-4 py-3 border-t border-white/8">
+            <div className="flex items-center justify-center gap-1.5">
+              <div className="w-1 h-1 rounded-full bg-teal animate-pulse-soft" style={{ animationDelay: '0ms' }} />
+              <p className="text-[10.5px] text-white/35 tracking-wider transition-colors duration-300 hover:text-white/50 cursor-default">
+                ClearLearn v1.0 · DeepSeek
+              </p>
+              <div className="w-1 h-1 rounded-full bg-amber animate-pulse-soft" style={{ animationDelay: '500ms' }} />
+            </div>
           </div>
         </div>
       </aside>

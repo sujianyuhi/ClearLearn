@@ -20,6 +20,7 @@ import {
 import type { ElementData } from '../types';
 import LoadingCard from '../components/LoadingCard';
 import ChatPanel from '../components/ChatPanel';
+import { PageHeader, ErrorState, SearchInput, ActionButton } from '../components/UI';
 
 const API_BASE = 'https://cn.apihz.cn/api/other/yuansu.php?id=10017576&key=1356a3698c81abe43c2eacb627cb6c91';
 
@@ -71,16 +72,6 @@ export default function ChemicalElement() {
     fetchElement(query);
   }, [fetchElement, query]);
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        handleSearch();
-      }
-    },
-    [handleSearch]
-  );
-
   const handleSuggestionClick = useCallback(
     (value: string) => {
       setQuery(value);
@@ -100,56 +91,51 @@ export default function ChemicalElement() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-ink/10 flex items-center justify-center">
-            <Atom size={22} className="text-ink" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-ink font-serif">元素周期表</h1>
-            <p className="text-sm text-muted">探索化学元素的奥秘，查询元素属性与知识</p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={Atom}
+        title="元素周期表"
+        description="探索化学元素的奥秘，查询元素属性与知识"
+        accent="ink"
+      />
 
       {/* Search Section */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
+      <div className="bg-white rounded-2xl p-6 shadow-card border border-line-soft mb-6">
         <div className="flex gap-3 mb-4">
-          <div className="flex-1 relative">
-            <input
-              type="text"
+          <div className="flex-1">
+            <SearchInput
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
+              onChange={setQuery}
+              onSubmit={handleSearch}
               placeholder="输入元素名称、符号或原子序数，如：氢 / H / 1"
-              className="w-full pl-10 pr-4 py-3 bg-ivory rounded-xl border border-amber/15 text-charcoal placeholder:text-muted/50 focus:border-amber/40 focus:ring-2 focus:ring-amber/15 outline-none transition-all"
+              icon={Search}
+              size="md"
             />
-            <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted/50" />
           </div>
-          <button
+          <ActionButton
             onClick={handleSearch}
             disabled={loading || !query.trim()}
-            className="px-6 py-3 bg-ink text-white rounded-xl hover:bg-ink/90 transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            loading={loading}
+            variant="primary"
+            size="md"
+            icon={loading ? <RotateCcw size={15} className="animate-spin" /> : <Search size={15} />}
           >
-            {loading ? <RotateCcw size={16} className="animate-spin" /> : <Search size={16} />}
-            <span>查询</span>
-          </button>
+            查询
+          </ActionButton>
         </div>
 
         {/* Suggestions */}
-        <div className="flex flex-wrap gap-2">
-          <span className="text-xs text-muted/60 mr-1 flex items-center">
-            <Sparkles size={12} className="mr-1" />
-            热门元素:
+        <div className="flex flex-wrap items-center gap-2 px-1">
+          <span className="text-xs text-muted/60 mr-1 flex items-center gap-1">
+            <Sparkles size={12} className="text-amber-deep" />
+            热门元素
           </span>
           {SUGGESTIONS.map((item) => (
             <button
               key={item.value}
               onClick={() => handleSuggestionClick(item.value)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-ivory hover:bg-amber/10 border border-amber/10 hover:border-amber/30 rounded-lg text-xs text-charcoal transition-all duration-200 active:scale-95"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-ivory hover:bg-amber/10 border border-line-soft hover:border-amber/30 rounded-lg text-xs text-charcoal transition-all duration-200 active:scale-95"
             >
-              <span className="font-bold text-ink">{item.symbol}</span>
+              <span className="font-bold text-ink font-mono">{item.symbol}</span>
               <span className="text-muted/70">{item.label}</span>
               <span className="text-[10px] text-muted/50">({item.num})</span>
             </button>
@@ -161,35 +147,25 @@ export default function ChemicalElement() {
       {loading && <LoadingCard />}
 
       {/* Error */}
-      {error && searched && !loading && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-          <p className="text-red-600 mb-3">{error}</p>
-          <button
-            onClick={() => fetchElement(query)}
-            className="px-4 py-2 bg-ink text-white rounded-lg text-sm hover:bg-ink/90 transition-colors"
-          >
-            重试
-          </button>
-        </div>
-      )}
+      {error && searched && !loading && <ErrorState message={error} onRetry={() => fetchElement(query)} retryText="重试" />}
 
       {/* Element Content */}
       {data && !loading && (
-        <div key={data.id} className="space-y-6 animate-fade-in-up">
+        <div key={data.id} className="space-y-5 stagger-children">
           {/* Hero Card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-card border border-line-soft overflow-hidden">
             <div className="flex flex-col md:flex-row">
               {/* Left: Big Element Tile */}
-              <div className="md:w-56 bg-gradient-to-br from-ink to-[#2A4A73] text-white p-8 flex flex-col items-center justify-center relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+              <div className="md:w-56 bg-gradient-to-br from-ink via-ink-light to-ink-deep text-white p-8 flex flex-col items-center justify-center relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-amber/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
                 <div className="relative text-center">
                   <div className="text-sm text-white/60 mb-1 font-mono">{data.id}</div>
-                  <div className="text-7xl font-bold tracking-tight mb-2">{data.ysfh}</div>
+                  <div className="text-7xl font-bold tracking-tight mb-2 font-serif">{data.ysfh}</div>
                   <div className="text-lg font-serif">{data.zwmc}</div>
                   <div className="text-sm text-white/60 mt-1">{data.ywmc}</div>
                   {data.yht && (
-                    <div className="mt-3 inline-block px-3 py-1 bg-white/10 rounded-full text-xs text-white/80">
+                    <div className="mt-3 inline-block px-3 py-1 bg-amber/20 rounded-full text-xs text-amber border border-amber/30">
                       {getCategoryName(data.yht)}
                     </div>
                   )}
@@ -197,20 +173,20 @@ export default function ChemicalElement() {
               </div>
 
               {/* Right: Key Info */}
-              <div className="flex-1 p-6 md:p-8">
+              <div className="flex-1 p-6 md:p-8 bg-white">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <InfoItem icon={<Hash size={16} />} label="原子序数" value={data.id} />
-                  <InfoItem icon={<Atom size={16} />} label="原子质量" value={data.yzzl} unit="u" />
-                  <InfoItem icon={<Beaker size={16} />} label="电子构型" value={data.dzgx} mono />
-                  <InfoItem icon={<Zap size={16} />} label="氧化态" value={data.yht || '--'} />
-                  <InfoItem icon={<Mountain size={16} />} label="原子半径" value={data.yzbj} unit="Å" />
-                  <InfoItem icon={<Microscope size={16} />} label="共价半径" value={data.gjbj} unit="Å" />
+                  <InfoItem icon={<Hash size={14} />} label="原子序数" value={data.id} />
+                  <InfoItem icon={<Atom size={14} />} label="原子质量" value={data.yzzl} unit="u" />
+                  <InfoItem icon={<Beaker size={14} />} label="电子构型" value={data.dzgx} mono />
+                  <InfoItem icon={<Zap size={14} />} label="氧化态" value={data.yht || '--'} />
+                  <InfoItem icon={<Mountain size={14} />} label="原子半径" value={data.yzbj} unit="Å" />
+                  <InfoItem icon={<Microscope size={14} />} label="共价半径" value={data.gjbj} unit="Å" />
                 </div>
 
                 {data.dzmx && (
-                  <div className="mt-5 pt-5 border-t border-gray-100">
+                  <div className="mt-5 pt-5 border-t border-line-soft">
                     <p className="text-xs text-muted/60 mb-2 flex items-center gap-1.5">
-                      <Atom size={12} />
+                      <Atom size={12} className="text-amber-deep" />
                       电子层模型
                     </p>
                     <img
@@ -228,14 +204,14 @@ export default function ChemicalElement() {
           </div>
 
           {/* Properties Grid */}
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-5">
             {/* Physical Properties */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="bg-white rounded-2xl p-6 shadow-card border border-line-soft">
               <div className="flex items-center gap-2.5 mb-5">
-                <div className="w-9 h-9 rounded-xl bg-amber/10 flex items-center justify-center">
-                  <Thermometer size={18} className="text-amber" />
+                <div className="w-9 h-9 rounded-xl bg-amber/15 flex items-center justify-center">
+                  <Thermometer size={17} className="text-amber-deep" />
                 </div>
-                <h3 className="text-base font-medium text-ink font-serif">物理性质</h3>
+                <h3 className="text-base font-semibold text-ink font-serif">物理性质</h3>
               </div>
               <div className="space-y-3.5">
                 <PropertyRow label="熔点" value={data.rd} unit="°C" />
@@ -249,12 +225,12 @@ export default function ChemicalElement() {
             </div>
 
             {/* Chemical & Nature */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="bg-white rounded-2xl p-6 shadow-card border border-line-soft">
               <div className="flex items-center gap-2.5 mb-5">
                 <div className="w-9 h-9 rounded-xl bg-ink/10 flex items-center justify-center">
-                  <Flame size={18} className="text-ink" />
+                  <Flame size={17} className="text-ink" />
                 </div>
-                <h3 className="text-base font-medium text-ink font-serif">化学与特性</h3>
+                <h3 className="text-base font-semibold text-ink font-serif">化学与特性</h3>
               </div>
               <div className="space-y-3.5">
                 <PropertyRow label="电子构型" value={data.dzgx} mono />
@@ -269,23 +245,23 @@ export default function ChemicalElement() {
           </div>
 
           {/* Discovery & Usage */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="grid md:grid-cols-2 gap-5">
+            <div className="bg-white rounded-2xl p-6 shadow-card border border-line-soft">
               <div className="flex items-center gap-2.5 mb-5">
-                <div className="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center">
-                  <Microscope size={18} className="text-purple-600" />
+                <div className="w-9 h-9 rounded-xl bg-purple-500/15 flex items-center justify-center">
+                  <Microscope size={17} className="text-purple-600" />
                 </div>
-                <h3 className="text-base font-medium text-ink font-serif">发现历史</h3>
+                <h3 className="text-base font-semibold text-ink font-serif">发现历史</h3>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-3.5">
                 {data.fx && (
-                  <div className="bg-ivory rounded-xl p-4">
+                  <div className="bg-ivory rounded-xl p-4 border border-line-soft">
                     <p className="text-xs text-muted/60 mb-1">发现信息</p>
                     <p className="text-sm text-charcoal leading-relaxed">{data.fx}</p>
                   </div>
                 )}
                 {data.ly && (
-                  <div className="bg-ivory rounded-xl p-4">
+                  <div className="bg-ivory rounded-xl p-4 border border-line-soft">
                     <p className="text-xs text-muted/60 mb-1">来源</p>
                     <p className="text-sm text-charcoal leading-relaxed">{data.ly}</p>
                   </div>
@@ -293,15 +269,15 @@ export default function ChemicalElement() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="bg-white rounded-2xl p-6 shadow-card border border-line-soft">
               <div className="flex items-center gap-2.5 mb-5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center">
-                  <Sparkles size={18} className="text-emerald-600" />
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+                  <Sparkles size={17} className="text-emerald-600" />
                 </div>
-                <h3 className="text-base font-medium text-ink font-serif">用途</h3>
+                <h3 className="text-base font-semibold text-ink font-serif">用途</h3>
               </div>
               {data.yt ? (
-                <div className="bg-ivory rounded-xl p-4">
+                <div className="bg-ivory rounded-xl p-4 border border-line-soft">
                   <p className="text-sm text-charcoal leading-relaxed">{data.yt}</p>
                 </div>
               ) : (
@@ -312,20 +288,20 @@ export default function ChemicalElement() {
 
           {/* Biological & Environmental */}
           {(data.xie || data.gu || data.gan || data.jr || data.hsz) && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="bg-white rounded-2xl p-6 shadow-card border border-line-soft">
               <div className="flex items-center gap-2.5 mb-5">
-                <div className="w-9 h-9 rounded-xl bg-teal-100 flex items-center justify-center">
-                  <Leaf size={18} className="text-teal-600" />
+                <div className="w-9 h-9 rounded-xl bg-teal/15 flex items-center justify-center">
+                  <Leaf size={17} className="text-teal" />
                 </div>
-                <h3 className="text-base font-medium text-ink font-serif">生物与环境</h3>
+                <h3 className="text-base font-semibold text-ink font-serif">生物与环境</h3>
               </div>
-              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {data.xie && <InfoCard icon={<Droplets size={16} />} label="血液中的存在" value={data.xie} />}
-                {data.gu && <InfoCard icon={<User size={16} />} label="人体含量" value={`${data.gu} mg/L`} />}
-                {data.gan && <InfoCard icon={<User size={16} />} label="肝脏含量" value={`${data.gan} mg/kg`} />}
-                {data.jr && <InfoCard icon={<User size={16} />} label="肌肉含量" value={`${data.jr} mg/kg`} />}
-                {data.hsz && <InfoCard icon={<Globe size={16} />} label="海水中的存在" value={data.hsz} />}
-                {data.rtzl && <InfoCard icon={<User size={16} />} label="人体总质量" value={data.rtzl} />}
+              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+                {data.xie && <InfoCard icon={<Droplets size={14} />} label="血液中的存在" value={data.xie} />}
+                {data.gu && <InfoCard icon={<User size={14} />} label="人体含量" value={`${data.gu} mg/L`} />}
+                {data.gan && <InfoCard icon={<User size={14} />} label="肝脏含量" value={`${data.gan} mg/kg`} />}
+                {data.jr && <InfoCard icon={<User size={14} />} label="肌肉含量" value={`${data.jr} mg/kg`} />}
+                {data.hsz && <InfoCard icon={<Globe size={14} />} label="海水中的存在" value={data.hsz} />}
+                {data.rtzl && <InfoCard icon={<User size={14} />} label="人体总质量" value={data.rtzl} />}
               </div>
             </div>
           )}
@@ -383,7 +359,7 @@ function PropertyRow({
   return (
     <div className={`flex items-start gap-3 ${fullWidth ? 'flex-col' : 'justify-between'}`}>
       <span className="text-xs text-muted/70 flex items-center gap-1.5 shrink-0">
-        <ChevronRight size={12} className="text-amber/60" />
+        <ChevronRight size={12} className="text-amber-deep/60" />
         {label}
       </span>
       <span className={`text-sm text-charcoal text-right ${mono ? 'font-mono' : ''} ${fullWidth ? '' : 'max-w-[60%]'}`}>
@@ -404,7 +380,7 @@ function InfoCard({
   value: string;
 }) {
   return (
-    <div className="bg-ivory rounded-xl p-4">
+    <div className="bg-ivory rounded-xl p-4 border border-line-soft">
       <div className="flex items-center gap-1.5 text-xs text-muted/60 mb-1.5">
         {icon}
         {label}
