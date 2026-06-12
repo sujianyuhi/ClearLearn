@@ -140,16 +140,20 @@ export default function ChatPanel({ section, currentData }: ChatPanelProps) {
           isOpen
             ? 'w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-charcoal to-ink text-amber shadow-2xl shadow-charcoal/40'
             : 'w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-ink via-ink-light to-ink-deep text-white shadow-2xl shadow-ink/40 ring-1 ring-white/10'
-        } rounded-full`}
+        } rounded-full group`}
         title={isOpen ? '关闭对话' : 'AI学习助手'}
       >
+        {/* Glow ring behind button */}
+        {!isOpen && (
+          <div className="absolute inset-0 rounded-full bg-amber/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 scale-125" />
+        )}
         {isOpen ? (
           <X size={22} strokeWidth={2.5} />
         ) : (
           <div className="relative">
             <MessageSquare size={24} strokeWidth={2} />
             {unreadCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gradient-to-br from-amber to-amber-deep text-ink text-[10px] font-bold rounded-full flex items-center justify-center shadow-md ring-2 ring-white">
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gradient-to-br from-amber to-amber-deep text-ink text-[10px] font-bold rounded-full flex items-center justify-center shadow-md ring-2 ring-white animate-breathe" style={{ animationDuration: '2s' }}>
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -176,8 +180,10 @@ export default function ChatPanel({ section, currentData }: ChatPanelProps) {
         {/* Header */}
         <div className="relative flex items-center justify-between px-5 py-4 rounded-tl-3xl bg-gradient-to-br from-ink via-ink-light to-ink-deep text-white shrink-0 overflow-hidden">
           {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-40 h-40 bg-amber/8 rounded-full blur-2xl -translate-y-1/2 translate-x-1/4" />
-          <div className="absolute bottom-0 left-1/3 w-24 h-24 bg-teal/8 rounded-full blur-2xl translate-y-1/2" />
+          <div className="absolute top-0 right-0 w-48 h-48 bg-amber/8 rounded-full blur-2xl -translate-y-1/2 translate-x-1/4 animate-breathe" style={{ animationDuration: '8s' }} />
+          <div className="absolute bottom-0 left-1/3 w-24 h-24 bg-teal/8 rounded-full blur-2xl translate-y-1/2 animate-breathe" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+          {/* Top gradient accent line */}
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber/30 to-transparent" />
 
           <div className="relative flex items-center gap-3">
             <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-amber to-amber-deep flex items-center justify-center shadow-lg shadow-amber/30">
@@ -302,8 +308,10 @@ export default function ChatPanel({ section, currentData }: ChatPanelProps) {
             </div>
 
             {/* Input */}
-            <div className="p-4 border-t border-amber/10 bg-white/90 backdrop-blur-md shrink-0">
-              <div className="flex items-end gap-2 bg-ivory rounded-2xl px-4 py-2.5 border border-amber/15 focus-within:border-amber/50 focus-within:ring-2 focus-within:ring-amber/20 focus-within:bg-white focus-within:shadow-md transition-all duration-300 shadow-sm">
+            <div className="p-4 border-t border-amber/10 bg-white/95 backdrop-blur-md shrink-0 relative">
+              {/* Top gradient accent */}
+              <div className="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-amber/20 to-transparent" />
+              <div className="flex items-end gap-2 bg-ivory rounded-2xl px-4 py-2.5 border border-amber/15 focus-within:border-amber/50 focus-within:ring-2 focus-within:ring-amber/20 focus-within:bg-white focus-within:shadow-lg focus-within:shadow-amber/5 transition-all duration-400 shadow-sm">
                 <textarea
                   ref={inputRef}
                   value={input}
@@ -328,7 +336,7 @@ export default function ChatPanel({ section, currentData }: ChatPanelProps) {
                     disabled={!input.trim()}
                     className={`p-2.5 rounded-xl transition-all duration-200 mb-0.5 active:scale-90 shadow-sm ${
                       input.trim()
-                        ? 'bg-gradient-to-br from-ink to-ink-light text-white hover:shadow-lg hover:shadow-ink/30'
+                        ? 'bg-gradient-to-r from-ink to-ink-light text-white hover:shadow-lg hover:shadow-ink/30'
                         : 'bg-ivory-deep text-muted/40 cursor-not-allowed'
                     }`}
                   >

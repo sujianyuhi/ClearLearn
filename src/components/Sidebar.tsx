@@ -149,18 +149,25 @@ export default function Sidebar() {
       >
         {/* Decorative gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-ink via-ink to-ink-deep pointer-events-none" />
-        <div className="absolute top-0 right-0 w-40 h-40 bg-amber/6 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDuration: '8s' }} />
-        <div className="absolute bottom-1/3 left-0 w-28 h-28 bg-teal/6 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+        {/* Animated aurora blobs */}
+        <div className="absolute top-0 right-0 w-48 h-48 bg-amber/8 rounded-full blur-3xl pointer-events-none animate-breathe" style={{ animationDuration: '8s' }} />
+        <div className="absolute bottom-1/3 left-0 w-36 h-36 bg-teal/6 rounded-full blur-3xl pointer-events-none animate-breathe" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+        <div className="absolute top-1/2 right-0 w-24 h-24 bg-amber-light/5 rounded-full blur-2xl pointer-events-none animate-breathe" style={{ animationDuration: '10s', animationDelay: '4s' }} />
+        {/* Subtle noise texture */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }} />
 
         <div className="relative flex flex-col h-full">
           {/* Logo */}
           <div className="p-5 border-b border-white/8">
             <div className="flex items-center gap-3 group cursor-default">
               <div className="relative">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber to-amber-deep flex items-center justify-center shadow-lg shadow-amber/20 ring-1 ring-white/10 group-hover:shadow-xl group-hover:shadow-amber/30 transition-all duration-500 group-hover:scale-105">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber to-amber-deep flex items-center justify-center shadow-lg shadow-amber/20 ring-1 ring-white/10 group-hover:shadow-xl group-hover:shadow-amber/30 transition-all duration-500 group-hover:scale-105 group-hover:rotate-3">
                   <BookOpen className="text-ink" size={20} strokeWidth={2.2} />
                 </div>
-                <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-teal rounded-full border-2 border-ink animate-pulse-soft" />
+                {/* Orbiting dot */}
+                <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-teal rounded-full border-2 border-ink animate-breathe" style={{ animationDuration: '3s' }} />
+                {/* Glow ring behind icon */}
+                <div className="absolute inset-0 rounded-xl bg-amber/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500 scale-125" />
               </div>
               <div className="leading-tight">
                 <h1 className="text-lg font-bold text-white font-serif tracking-wide group-hover:text-amber transition-colors duration-300">
@@ -220,26 +227,34 @@ export default function Sidebar() {
                               to={item.path}
                               onClick={() => setMobileOpen(false)}
                               className={({ isActive }) =>
-                                `group flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all duration-300 ${
+                                `group flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all duration-300 relative overflow-hidden ${
                                   isActive
                                     ? 'bg-gradient-to-r from-amber to-amber-deep text-ink shadow-md shadow-amber/20 font-semibold scale-[1.02]'
                                     : 'text-white/60 hover:bg-white/6 hover:text-white hover:translate-x-1'
                                 }`
                               }
                             >
-                              <Icon size={14} className="flex-shrink-0 transition-transform duration-300 group-hover:scale-110" />
-                              <div className="flex-1 min-w-0">
-                                <div className="text-[13px] leading-tight">{item.label}</div>
-                                <div
-                                  className={`text-[10.5px] mt-0.5 leading-snug truncate transition-colors ${
-                                    location.pathname === item.path
-                                      ? 'text-ink/50'
-                                      : 'text-white/30 group-hover:text-white/40'
-                                  }`}
-                                >
-                                  {item.description}
-                                </div>
-                              </div>
+                              {({ isActive }) => (
+                                <>
+                                  {/* Active shimmer effect */}
+                                  {isActive && (
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer-bar" />
+                                  )}
+                                  <Icon size={14} className="flex-shrink-0 transition-transform duration-300 group-hover:scale-110 relative z-10" />
+                                  <div className="flex-1 min-w-0 relative z-10">
+                                    <div className="text-[13px] leading-tight">{item.label}</div>
+                                    <div
+                                      className={`text-[10.5px] mt-0.5 leading-snug truncate transition-colors ${
+                                        isActive
+                                          ? 'text-ink/50'
+                                          : 'text-white/30 group-hover:text-white/40'
+                                      }`}
+                                    >
+                                      {item.description}
+                                    </div>
+                                  </div>
+                                </>
+                              )}
                             </NavLink>
                           );
                         })}
@@ -255,13 +270,15 @@ export default function Sidebar() {
           <WeatherWidget />
 
           {/* Footer */}
-          <div className="px-4 py-3 border-t border-white/8">
+          <div className="px-4 py-3 border-t border-white/8 relative">
+            {/* Gradient line accent */}
+            <div className="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-amber/20 to-transparent" />
             <div className="flex items-center justify-center gap-1.5">
-              <div className="w-1 h-1 rounded-full bg-teal animate-pulse-soft" style={{ animationDelay: '0ms' }} />
+              <div className="w-1 h-1 rounded-full bg-teal animate-breathe" style={{ animationDuration: '3s', animationDelay: '0ms' }} />
               <p className="text-[10.5px] text-white/35 tracking-wider transition-colors duration-300 hover:text-white/50 cursor-default">
                 ClearLearn v1.0 · DeepSeek
               </p>
-              <div className="w-1 h-1 rounded-full bg-amber animate-pulse-soft" style={{ animationDelay: '500ms' }} />
+              <div className="w-1 h-1 rounded-full bg-amber animate-breathe" style={{ animationDuration: '3s', animationDelay: '1.5s' }} />
             </div>
           </div>
         </div>

@@ -92,20 +92,22 @@ export function PageHeader({
       <div className="flex items-center gap-4">
         <div className="relative group">
           {/* Icon background glow */}
-          <div className={`absolute inset-0 ${a.glow} rounded-2xl blur-lg scale-125 opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+          <div className={`absolute inset-0 ${a.glow} rounded-2xl blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
+          {/* Morphing decorative blob */}
+          <div className={`absolute -inset-3 ${a.glow} rounded-full blur-2xl opacity-30 animate-breathe`} style={{ animationDuration: '5s' }} />
           {/* Icon container */}
           <div
-            className={`relative w-12 h-12 rounded-2xl ${a.bg} ${a.icon} flex items-center justify-center ring-1 ${a.ring} shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105`}
+            className={`relative w-12 h-12 rounded-2xl ${a.bg} ${a.icon} flex items-center justify-center ring-1 ${a.ring} shadow-sm group-hover:shadow-lg transition-all duration-500 group-hover:scale-110 group-hover:rotate-3`}
           >
             <Icon size={22} strokeWidth={1.8} />
           </div>
           {/* Decorative dot accent */}
           <div
-            className={`absolute -top-1 -right-1 w-2.5 h-2.5 ${a.dot} rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 scale-0 group-hover:scale-100`}
+            className={`absolute -top-1 -right-1 w-2.5 h-2.5 ${a.dot} rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 scale-0 group-hover:scale-100`}
           />
           {/* Bottom accent bar */}
           <div
-            className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-gradient-to-r ${a.bar} opacity-60 group-hover:opacity-100 group-hover:w-8 transition-all duration-300`}
+            className={`absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-gradient-to-r ${a.bar} opacity-60 group-hover:opacity-100 group-hover:w-10 transition-all duration-500`}
           />
         </div>
         <div>
@@ -191,6 +193,8 @@ export function LoadingCard() {
       <div className="absolute top-0 left-0 right-0 h-0.5">
         <div className="h-full bg-gradient-to-r from-transparent via-amber/60 to-transparent animate-shimmer-bar" />
       </div>
+      {/* Gradient accent line */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber/20 to-transparent" />
       <div className="space-y-4">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl skeleton" />
@@ -239,9 +243,9 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon: Icon, title, description, children }: EmptyStateProps) {
   return (
-    <div className="text-center py-16 px-6 animate-fade-in-scale">
+    <div className="text-center py-16 px-6 animate-scale-reveal">
       <div className="relative inline-flex mb-5">
-        <div className="absolute inset-0 bg-amber/20 rounded-3xl blur-xl scale-150 animate-pulse-soft" />
+        <div className="absolute inset-0 bg-amber/20 rounded-3xl blur-xl scale-150 animate-breathe" style={{ animationDuration: '4s' }} />
         <div className="relative w-20 h-20 rounded-3xl bg-gradient-to-br from-amber/15 to-amber/5 flex items-center justify-center border border-amber/15 shadow-glow-amber">
           <Icon size={36} strokeWidth={1.5} className="text-amber-deep" />
         </div>
@@ -266,9 +270,11 @@ interface ErrorStateProps {
 
 export function ErrorState({ title = '出错了', message, onRetry, retryText = '重新加载' }: ErrorStateProps) {
   return (
-    <div className="bg-white rounded-2xl p-8 shadow-card border border-rose-100 text-center animate-fade-in-up">
+    <div className="bg-white rounded-2xl p-8 shadow-card border border-rose-100 text-center animate-scale-reveal relative overflow-hidden">
+      {/* Top gradient accent */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-rose-300/40 to-transparent" />
       <div className="relative inline-flex mb-4">
-        <div className="absolute inset-0 bg-rose-100 rounded-2xl blur-lg scale-150" />
+        <div className="absolute inset-0 bg-rose-100 rounded-2xl blur-xl scale-150 animate-breathe" style={{ animationDuration: '4s' }} />
         <div className="relative w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center border border-rose-100">
           <AlertCircle size={22} className="text-rose-500" strokeWidth={2} />
         </div>
@@ -278,7 +284,7 @@ export function ErrorState({ title = '出错了', message, onRetry, retryText = 
       {onRetry && (
         <button
           onClick={onRetry}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-ink text-white rounded-xl text-sm font-medium hover:bg-ink/90 hover:shadow-lg active:scale-95 transition-all duration-300 shadow-md btn-lift"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-ink to-ink-light text-white rounded-xl text-sm font-medium hover:from-ink-light hover:to-ink hover:shadow-xl active:scale-95 transition-all duration-300 shadow-md btn-lift"
         >
           {retryText}
         </button>
@@ -313,7 +319,9 @@ export function InfoCard({ icon, title, accent = 'amber', children, className = 
   const a = infoAccent[accent];
 
   return (
-    <div className={`bg-white rounded-2xl p-6 shadow-card border border-line-soft transition-all duration-300 hover:shadow-card-hover hover:-translate-y-0.5 ${className}`}>
+    <div className={`bg-white rounded-2xl p-6 shadow-card border border-line-soft transition-all duration-400 hover:shadow-card-hover hover:-translate-y-1 shine-on-hover relative overflow-hidden ${className}`}>
+      {/* Top gradient accent line */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber/30 to-transparent" />
       <SectionTitle
         icon={() => <span className={a.text}>{icon}</span>}
         title={title}
@@ -382,7 +390,7 @@ export function ActionButton({
   type = 'button',
 }: ActionButtonProps) {
   const variantClass = {
-    primary: 'bg-ink text-white hover:bg-ink/90 shadow-md hover:shadow-lg hover:shadow-ink/25',
+    primary: 'bg-gradient-to-r from-ink to-ink-light text-white hover:from-ink-light hover:to-ink shadow-md hover:shadow-xl hover:shadow-ink/25',
     secondary: 'bg-white border border-line text-ink hover:border-amber/40 hover:bg-amber/5 hover:shadow-md',
     ghost: 'bg-transparent text-ink hover:bg-ink/5',
   }[variant];
@@ -435,7 +443,7 @@ export function SearchInput({
 
   return (
     <div
-      className={`flex items-center gap-2 bg-ivory rounded-2xl px-4 ${sizeClass} border border-amber/10 focus-within:border-amber/40 focus-within:ring-2 focus-within:ring-amber/15 focus-within:bg-white focus-within:shadow-md transition-all duration-300 ${className}`}
+      className={`flex items-center gap-2 bg-ivory rounded-2xl px-4 ${sizeClass} border border-amber/10 focus-within:border-amber/40 focus-within:ring-2 focus-within:ring-amber/15 focus-within:bg-white focus-within:shadow-lg focus-within:shadow-amber/5 transition-all duration-400 ${className}`}
     >
       {Icon && <Icon size={18} className="text-muted/60 flex-shrink-0 transition-colors duration-300 group-focus-within:text-amber-deep" />}
       <input

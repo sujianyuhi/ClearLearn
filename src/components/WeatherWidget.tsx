@@ -147,8 +147,11 @@ export default function WeatherWidget() {
   }
 
   return (
-    <div className="mx-3 mb-3 p-3.5 rounded-xl bg-gradient-to-br from-white/8 to-white/3 border border-white/8 backdrop-blur-sm">
-      <div className="flex items-center justify-between">
+    <div className="mx-3 mb-3 p-3.5 rounded-xl bg-gradient-to-br from-white/8 to-white/3 border border-white/8 backdrop-blur-sm relative overflow-hidden">
+      {/* Ambient glow */}
+      <div className="absolute -top-4 -right-4 w-16 h-16 bg-amber/10 rounded-full blur-xl animate-breathe" style={{ animationDuration: '6s' }} />
+      <div className="absolute -bottom-4 -left-4 w-12 h-12 bg-teal/8 rounded-full blur-xl animate-breathe" style={{ animationDuration: '8s', animationDelay: '3s' }} />
+      <div className="relative flex items-center justify-between">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-9 h-9 rounded-lg bg-white/8 flex items-center justify-center flex-shrink-0">
             {getWeatherIcon(weather.weather)}
